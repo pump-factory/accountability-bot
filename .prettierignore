@@ -1,0 +1,10 @@
+/build
+/public/build
+/.idea
+/.vscode
+/postgres-data
+node_modules
+
+.env
+package.json
+package-lock.json
