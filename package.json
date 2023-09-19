@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/server.js",
-    "start": "tsc && node dist/server.js"
+    "start": "tsc && node dist/server.js",
+    "generate": "pgtyped -c pg-typed-config.json"
   },
   "keywords": [],
   "author": "",
