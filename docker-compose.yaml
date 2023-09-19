@@ -18,11 +18,11 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_USER: accountability-bot
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: accountability-bot
+      - POSTGRES_USER=accountability-bot
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=accountability-bot
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
