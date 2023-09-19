@@ -33,6 +33,42 @@ const findHabitsIR: any = {"usedParamSet":{},"params":[],"statement":"select\n\t
 export const findHabits = new PreparedQuery<IFindHabitsParams,IFindHabitsResult>(findHabitsIR);
 
 
+/** 'FindHabitByTitle' parameters type */
+export interface IFindHabitByTitleParams {
+  title?: string | null | void;
+}
+
+/** 'FindHabitByTitle' return type */
+export interface IFindHabitByTitleResult {
+  created_at: Date;
+  description: string | null;
+  id: number;
+  title: string;
+  updated_at: Date;
+}
+
+/** 'FindHabitByTitle' query type */
+export interface IFindHabitByTitleQuery {
+  params: IFindHabitByTitleParams;
+  result: IFindHabitByTitleResult;
+}
+
+const findHabitByTitleIR: any = {"usedParamSet":{"title":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":38,"b":43}]}],"statement":"select\n\t*\nfrom\n\thabits\nwhere\n\ttitle = :title"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * select
+ * 	*
+ * from
+ * 	habits
+ * where
+ * 	title = :title
+ * ```
+ */
+export const findHabitByTitle = new PreparedQuery<IFindHabitByTitleParams,IFindHabitByTitleResult>(findHabitByTitleIR);
+
+
 /** 'FindHabitCompletionsForUser' parameters type */
 export interface IFindHabitCompletionsForUserParams {
   user_id?: number | null | void;
@@ -102,6 +138,35 @@ const findHabitCompletionsForUserTodayIR: any = {"usedParamSet":{"user_id":true}
  * ```
  */
 export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitCompletionsForUserTodayParams,IFindHabitCompletionsForUserTodayResult>(findHabitCompletionsForUserTodayIR);
+
+
+/** 'CreateHabit' parameters type */
+export interface ICreateHabitParams {
+  description?: string | null | void;
+  title?: string | null | void;
+}
+
+/** 'CreateHabit' return type */
+export type ICreateHabitResult = void;
+
+/** 'CreateHabit' query type */
+export interface ICreateHabitQuery {
+  params: ICreateHabitParams;
+  result: ICreateHabitResult;
+}
+
+const createHabitIR: any = {"usedParamSet":{"title":true,"description":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":50,"b":55}]},{"name":"description","required":false,"transform":{"type":"scalar"},"locs":[{"a":58,"b":69}]}],"statement":"insert into\n\thabits (title, description)\nvalues\n\t(:title, :description)"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * insert into
+ * 	habits (title, description)
+ * values
+ * 	(:title, :description)
+ * ```
+ */
+export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResult>(createHabitIR);
 
 
 /** 'LogHabitCompletion' parameters type */
