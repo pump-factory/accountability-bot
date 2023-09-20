@@ -18,9 +18,7 @@ bot.on('text', (ctx) => {
 
 bot.command('create', async (ctx) => {
 	const existing = await findHabitByTitle.run(
-		{
-			title: ctx.message.text,
-		},
+		{ title: ctx.message.text },
 		client,
 	)
 
@@ -29,12 +27,11 @@ bot.command('create', async (ctx) => {
 		return
 	}
 
-	await createHabit.run(
-		{
-			title: ctx.message.text,
-		},
-		client,
-	)
+	try {
+		await createHabit.run({ title: ctx.message.text }, client)
+	} catch (err) {
+		ctx.reply('error creating habit. please try again')
+	}
 
 	await ctx.reply('created new daily habit')
 })
