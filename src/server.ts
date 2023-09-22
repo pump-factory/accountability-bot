@@ -32,7 +32,7 @@ const start = async () => {
 		const userTelegramID = ctx.from.id
 
 		const results = await findUserByTelegramId.run(
-			{ telegram_id: userTelegramID.toString() },
+			{ telegram_id: userTelegramID },
 			client,
 		)
 
@@ -42,7 +42,7 @@ const start = async () => {
 			const result = await createUser.run(
 				{
 					name: ctx.from.first_name,
-					telegram_id: userTelegramID.toString(),
+					telegram_id: userTelegramID,
 				},
 				client,
 			)
@@ -80,7 +80,7 @@ const start = async () => {
 		}
 
 		try {
-			await createHabit.run({ title: ctx.message.text }, client)
+			await createHabit.run({ title: ctx.payload }, client)
 		} catch (err) {
 			ctx.reply('error creating habit. please try again')
 			return
