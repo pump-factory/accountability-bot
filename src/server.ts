@@ -3,7 +3,7 @@ import { Telegraf } from 'telegraf'
 import cron from 'node-cron'
 import {
 	createHabit,
-	findHabitByTitle,
+	findHabit,
 	logHabitCompletion,
 } from './habits/habits.queries'
 import { Client } from 'pg'
@@ -73,7 +73,10 @@ const start = async () => {
 	bot.help((ctx) => ctx.reply('Implement me!'))
 
 	bot.command('create', async (ctx) => {
-		const results = await findHabitByTitle.run({ title: ctx.payload }, client)
+		const results = await findHabit.run(
+			{ title: ctx.payload, chat_id: ctx.chat.id },
+			client,
+		)
 		if (results.length > 0) {
 			ctx.reply('habit already exists')
 			return
@@ -99,7 +102,10 @@ const start = async () => {
 	 */
 	bot.command('log', async (ctx) => {
 		const habitName = ctx.payload
-		const results = await findHabitByTitle.run({ title: habitName }, client)
+		const results = await findHabit.run(
+			{ title: habitName, chat_id: ctx.chat.id },
+			client,
+		)
 		if (results.length === 0) {
 			ctx.reply(`habit ${habitName} does not exist`)
 			return
@@ -109,7 +115,8 @@ const start = async () => {
 		try {
 			await logHabitCompletion.run(
 				{
-					user_id: 123,
+					// @ts-ignore
+					user_id: ctx.user.telegram_id,
 					habit_id: habit.id,
 				},
 				client,
@@ -118,6 +125,8 @@ const start = async () => {
 			ctx.reply('error logging habit completion. please try again')
 			return
 		}
+
+		ctx.reply(`logged habit completion for ${habitName}`)
 	})
 
 	// scheduled messages
