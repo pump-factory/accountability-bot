@@ -15,7 +15,6 @@ create table if not exists habits (
 	id SERIAL PRIMARY KEY,
     chat_id integer NOT NULL,
 	title TEXT NOT NULL,
-	description TEXT,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

@@ -19,8 +19,8 @@ where user_id = :user_id
   and completed_at > now() - interval '1 day';
 
 /* @name CreateHabit */
-insert into habits (title, description)
-values (:title, :description);
+insert into habits (title, chat_id)
+values (:title, :chat_id);
 
 /* @name LogHabitCompletion */
 insert into habit_completions (user_id, habit_id, completed_at)

@@ -131,7 +131,7 @@ export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitComp
 
 /** 'CreateHabit' parameters type */
 export interface ICreateHabitParams {
-  description?: string | null | void;
+  chat_id?: number | null | void;
   title?: string | null | void;
 }
 
@@ -144,13 +144,13 @@ export interface ICreateHabitQuery {
   result: ICreateHabitResult;
 }
 
-const createHabitIR: any = {"usedParamSet":{"title":true,"description":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":48,"b":53}]},{"name":"description","required":false,"transform":{"type":"scalar"},"locs":[{"a":56,"b":67}]}],"statement":"insert into habits (title, description)\nvalues (:title, :description)"};
+const createHabitIR: any = {"usedParamSet":{"title":true,"chat_id":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":44,"b":49}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":52,"b":59}]}],"statement":"insert into habits (title, chat_id)\nvalues (:title, :chat_id)"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into habits (title, description)
- * values (:title, :description)
+ * insert into habits (title, chat_id)
+ * values (:title, :chat_id)
  * ```
  */
 export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResult>(createHabitIR);
