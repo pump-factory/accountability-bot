@@ -46,7 +46,7 @@ const start = async () => {
 				},
 				client,
 			)
-			if (results.length) {
+			if (result.length) {
 				user = result[0]
 			}
 		} else {
@@ -80,7 +80,10 @@ const start = async () => {
 		}
 
 		try {
-			await createHabit.run({ title: ctx.payload }, client)
+			await createHabit.run(
+				{ title: ctx.payload, chat_id: ctx.chat.id },
+				client,
+			)
 		} catch (err) {
 			ctx.reply('error creating habit. please try again')
 			return
@@ -91,14 +94,13 @@ const start = async () => {
 
 	/**
 	 * Log the completion of a habit
-	 * TODO: Figure out creating userIds
 	 * TODO: Figure out how to pass habits. Probably by name. Probably will
 	 * need to downcase and suggest similar habits in case of misspellings
 	 */
 	bot.command('log', async (ctx) => {
 		const habitName = ctx.payload
 		const results = await findHabitByTitle.run({ title: habitName }, client)
-		if (results.length < 0) {
+		if (results.length === 0) {
 			ctx.reply(`habit ${habitName} does not exist`)
 			return
 		}
