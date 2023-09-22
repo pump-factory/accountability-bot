@@ -1,6 +1,8 @@
 /** Types generated for queries found in "src/habits/habits.sql" */
 import { PreparedQuery } from '@pgtyped/runtime';
 
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
+
 /** 'FindHabitsByChatId' parameters type */
 export type IFindHabitsByChatIdParams = void;
 
@@ -184,5 +186,70 @@ const logHabitCompletionIR: any = {"usedParamSet":{"user_id":true,"habit_id":tru
  * ```
  */
 export const logHabitCompletion = new PreparedQuery<ILogHabitCompletionParams,ILogHabitCompletionResult>(logHabitCompletionIR);
+
+
+/** 'FindHabitsGroupedByChatId' parameters type */
+export type IFindHabitsGroupedByChatIdParams = void;
+
+/** 'FindHabitsGroupedByChatId' return type */
+export interface IFindHabitsGroupedByChatIdResult {
+  chat_id: number;
+  habits: Json | null;
+}
+
+/** 'FindHabitsGroupedByChatId' query type */
+export interface IFindHabitsGroupedByChatIdQuery {
+  params: IFindHabitsGroupedByChatIdParams;
+  result: IFindHabitsGroupedByChatIdResult;
+}
+
+const findHabitsGroupedByChatIdIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT chat_id, json_agg(habits.*) AS habits\nFROM habits\nGROUP BY chat_id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT chat_id, json_agg(habits.*) AS habits
+ * FROM habits
+ * GROUP BY chat_id
+ * ```
+ */
+export const findHabitsGroupedByChatId = new PreparedQuery<IFindHabitsGroupedByChatIdParams,IFindHabitsGroupedByChatIdResult>(findHabitsGroupedByChatIdIR);
+
+
+/** 'FindUsersWithoutHabitCompletions' parameters type */
+export interface IFindUsersWithoutHabitCompletionsParams {
+  habit_ids: readonly (number | null | void)[];
+}
+
+/** 'FindUsersWithoutHabitCompletions' return type */
+export interface IFindUsersWithoutHabitCompletionsResult {
+  created_at: Date;
+  name: string;
+  telegram_id: number;
+  updated_at: Date;
+}
+
+/** 'FindUsersWithoutHabitCompletions' query type */
+export interface IFindUsersWithoutHabitCompletionsQuery {
+  params: IFindUsersWithoutHabitCompletionsParams;
+  result: IFindUsersWithoutHabitCompletionsResult;
+}
+
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"habit_ids":true},"params":[{"name":"habit_ids","required":false,"transform":{"type":"array_spread"},"locs":[{"a":173,"b":182}]}],"statement":"SELECT users.*\nFROM users\n         LEFT JOIN habit_completions ON (\n            habit_completions.user_id = users.telegram_id AND\n            habit_completions.habit_id IN (:habit_ids) AND\n            habit_completions.completed_at = CURRENT_DATE\n    )\nWHERE habit_completions.user_id IS NULL"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT users.*
+ * FROM users
+ *          LEFT JOIN habit_completions ON (
+ *             habit_completions.user_id = users.telegram_id AND
+ *             habit_completions.habit_id IN (:habit_ids) AND
+ *             habit_completions.completed_at = CURRENT_DATE
+ *     )
+ * WHERE habit_completions.user_id IS NULL
+ * ```
+ */
+export const findUsersWithoutHabitCompletions = new PreparedQuery<IFindUsersWithoutHabitCompletionsParams,IFindUsersWithoutHabitCompletionsResult>(findUsersWithoutHabitCompletionsIR);
 
 

@@ -4,6 +4,8 @@ import cron from 'node-cron'
 import {
 	createHabit,
 	findHabit,
+	findHabitsGroupedByChatId,
+	findUsersWithoutHabitCompletions,
 	logHabitCompletion,
 } from './habits/habits.queries'
 import { Client } from 'pg'
@@ -129,9 +131,57 @@ const start = async () => {
 		ctx.reply(`logged habit completion for ${habitName}`)
 	})
 
-	// scheduled messages
-	cron.schedule('30 7 * * *', async () => {
-		await bot.telegram.sendMessage(5033674135, 'Good morning! get accountable!')
+	// Beginning of day message
+	cron.schedule('30 12 * * *', async () => {
+		const results = await findHabitsGroupedByChatId.run(undefined, client)
+		if (results.length === 0) {
+			return
+		}
+
+		for (const { chat_id, habits: habitJson } of results) {
+			const habits = habitJson as { title: string; id: number }[]
+			const habitStr = habits.map((habit) => habit.title).join(', ')
+
+			await bot.telegram.sendMessage(
+				chat_id,
+				`Let's get accountable for ${habitStr}`,
+			)
+		}
+	})
+
+	/**
+	 * End of day message
+	 * For each unique chat ID
+	 * 	- Get list of habits
+	 * 	- Find users without a habit_completion for each habit
+	 * 	- DM each user that hasn't completed habit?
+	 */
+	cron.schedule('0 0 * * *', async () => {
+		const results = await findHabitsGroupedByChatId.run(undefined, client)
+		if (results.length === 0) {
+			return
+		}
+
+		for (const { chat_id, habits: habitJson } of results) {
+			const habits = habitJson as { title: string; id: number }[]
+			const habitIds = habits.map((habit) => habit.id)
+
+			const userResults = await findUsersWithoutHabitCompletions.run(
+				{
+					habit_ids: habitIds,
+				},
+				client,
+			)
+			if (userResults.length === 0) {
+				continue
+			}
+
+			const userNames = userResults.map((user) => user.name)
+			await bot.telegram.sendMessage(
+				chat_id,
+				`${userNames.join(', ')} still need to complete their habits`,
+			)
+		}
 	})
 
 	await bot.launch()
