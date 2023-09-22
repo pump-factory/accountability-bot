@@ -9,5 +9,5 @@
 	"srcDir": "./src/",
 	"failOnError": false,
 	"camelCaseColumnNames": false,
-	"dbUrl": "postgres://accountability-bot:password@localhost:5433/accountability-bot"
+	"dbUrl": "postgres://accountability-bot:password@localhost:5432/accountability-bot"
 }
