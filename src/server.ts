@@ -1,56 +1,93 @@
+import 'dotenv/config'
 import { Telegraf } from 'telegraf'
 import cron from 'node-cron'
-import { createHabit, findHabitByTitle } from './habits/habits.queries'
+import {
+	createHabit,
+	findHabitByTitle,
+	logHabitCompletion,
+} from './habits/habits.queries'
 import { Client } from 'pg'
 
-const client = new Client({
-	user: process.env.POSTGRES_USER,
-	password: process.env.POSTGRES_PASSWORD,
-	database: process.env.POSTGRES_DATABASE,
-})
+const start = async () => {
+	const client = new Client({
+		user: process.env.POSTGRES_USER,
+		password: process.env.POSTGRES_PASSWORD,
+		database: process.env.POSTGRES_DATABASE,
+		host: process.env.POSTGRES_HOST,
+	})
+	await client.connect()
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+	const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.telegram.setMyCommands([
-	{
-		command: 'log',
-		description: 'log habit',
-	},
-])
+	// Register logger middleware
+	bot.use((ctx, next) => {
+		console.log('new message', ctx.message)
+		return next()
+	})
 
-bot.start((ctx) => ctx.reply("Welcome! Let's get accountable"))
-bot.help((ctx) => ctx.reply('Implement me!'))
-// bot.on('text', (ctx) => {
-// 	ctx.reply(ctx.message)
-// })
+	await bot.telegram.setMyCommands([
+		{
+			command: 'log',
+			description: 'log the completion of a habit',
+		},
+		{
+			command: 'create',
+			description: 'create a new habit',
+		},
+	])
 
-bot.command('log', async (ctx) => {
-	const existing = await findHabitByTitle.run(
-		{ title: ctx.message.text },
-		client,
-	)
+	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))
 
-	if (existing) {
-		ctx.reply('habit already exists')
-		return
-	}
+	bot.help((ctx) => ctx.reply('Implement me!'))
 
-	try {
-		await createHabit.run({ title: ctx.message.text }, client)
-	} catch (err) {
-		ctx.reply('error creating habit. please try again')
-	}
+	bot.command('create', async (ctx) => {
+		const results = await findHabitByTitle.run({ title: ctx.payload }, client)
+		if (results.length > 0) {
+			ctx.reply('habit already exists')
+			return
+		}
 
-	await ctx.reply('created new daily habit')
-})
+		try {
+			await createHabit.run({ title: ctx.message.text }, client)
+		} catch (err) {
+			ctx.reply('error creating habit. please try again')
+			return
+		}
 
-// scheduled messages
-cron.schedule('30 7 * * *', () => {
-	bot.telegram.sendMessage(5033674135, 'Good morning! get accountable!')
-})
+		await ctx.reply(`Created habit '${ctx.payload}'`)
+	})
 
-bot.launch()
+	/**
+	 * Log the completion of a habit
+	 * TODO: Figure out creating userIds
+	 * TODO: Figure out how to pass habits. Probably by name. Probably will
+	 * need to downcase and suggest similar habits in case of misspellings
+	 */
+	bot.command('log', async (ctx) => {
+		try {
+			await logHabitCompletion.run(
+				{
+					user_id: 123,
+					habit_id: 123,
+				},
+				client,
+			)
+		} catch (err) {
+			ctx.reply('error logging habit completion. please try again')
+			return
+		}
+	})
 
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+	// scheduled messages
+	cron.schedule('30 7 * * *', async () => {
+		await bot.telegram.sendMessage(5033674135, 'Good morning! get accountable!')
+	})
+
+	await bot.launch()
+
+	// Enable graceful stop
+	process.once('SIGINT', () => bot.stop('SIGINT'))
+	process.once('SIGTERM', () => bot.stop('SIGTERM'))
+}
+
+start().then(() => console.log('Bot started'))
