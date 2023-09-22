@@ -6,6 +6,7 @@ export type IFindHabitsParams = void;
 
 /** 'FindHabits' return type */
 export interface IFindHabitsResult {
+  chat_id: number;
   created_at: Date;
   description: string | null;
   id: number;
@@ -38,6 +39,7 @@ export interface IFindHabitByTitleParams {
 
 /** 'FindHabitByTitle' return type */
 export interface IFindHabitByTitleResult {
+  chat_id: number;
   created_at: Date;
   description: string | null;
   id: number;
@@ -73,8 +75,7 @@ export interface IFindHabitCompletionsForUserParams {
 export interface IFindHabitCompletionsForUserResult {
   completed_at: Date;
   habit_id: number | null;
-  id: number;
-  user_id: number | null;
+  user_id: number;
 }
 
 /** 'FindHabitCompletionsForUser' query type */
@@ -105,8 +106,7 @@ export interface IFindHabitCompletionsForUserTodayParams {
 export interface IFindHabitCompletionsForUserTodayResult {
   completed_at: Date;
   habit_id: number | null;
-  id: number;
-  user_id: number | null;
+  user_id: number;
 }
 
 /** 'FindHabitCompletionsForUserToday' query type */

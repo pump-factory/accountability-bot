@@ -3,15 +3,14 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'FindUserByTelegramId' parameters type */
 export interface IFindUserByTelegramIdParams {
-  telegram_id?: string | null | void;
+  telegram_id?: number | null | void;
 }
 
 /** 'FindUserByTelegramId' return type */
 export interface IFindUserByTelegramIdResult {
   created_at: Date;
-  id: number;
   name: string;
-  telegram_id: string;
+  telegram_id: number;
   updated_at: Date;
 }
 
@@ -38,11 +37,16 @@ export const findUserByTelegramId = new PreparedQuery<IFindUserByTelegramIdParam
 /** 'CreateUser' parameters type */
 export interface ICreateUserParams {
   name?: string | null | void;
-  telegram_id?: string | null | void;
+  telegram_id?: number | null | void;
 }
 
 /** 'CreateUser' return type */
-export type ICreateUserResult = void;
+export interface ICreateUserResult {
+  created_at: Date;
+  name: string;
+  telegram_id: number;
+  updated_at: Date;
+}
 
 /** 'CreateUser' query type */
 export interface ICreateUserQuery {
@@ -50,13 +54,14 @@ export interface ICreateUserQuery {
   result: ICreateUserResult;
 }
 
-const createUserIR: any = {"usedParamSet":{"telegram_id":true,"name":true},"params":[{"name":"telegram_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":60,"b":64}]}],"statement":"insert into users (telegram_id, name)\nvalues (:telegram_id, :name)"};
+const createUserIR: any = {"usedParamSet":{"telegram_id":true,"name":true},"params":[{"name":"telegram_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":60,"b":64}]}],"statement":"insert into users (telegram_id, name)\nvalues (:telegram_id, :name)\nreturning *"};
 
 /**
  * Query generated from SQL:
  * ```
  * insert into users (telegram_id, name)
  * values (:telegram_id, :name)
+ * returning *
  * ```
  */
 export const createUser = new PreparedQuery<ICreateUserParams,ICreateUserResult>(createUserIR);
