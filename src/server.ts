@@ -96,11 +96,19 @@ const start = async () => {
 	 * need to downcase and suggest similar habits in case of misspellings
 	 */
 	bot.command('log', async (ctx) => {
+		const habitName = ctx.payload
+		const results = await findHabitByTitle.run({ title: habitName }, client)
+		if (results.length < 0) {
+			ctx.reply(`habit ${habitName} does not exist`)
+			return
+		}
+
+		const habit = results[0]
 		try {
 			await logHabitCompletion.run(
 				{
 					user_id: 123,
-					habit_id: 123,
+					habit_id: habit.id,
 				},
 				client,
 			)
