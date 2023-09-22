@@ -7,6 +7,8 @@ import {
 	logHabitCompletion,
 } from './habits/habits.queries'
 import { Client } from 'pg'
+import { createUser, findUserByTelegramId } from './users/users.queries'
+import { CustomContext } from './types'
 
 const start = async () => {
 	const client = new Client({
@@ -23,6 +25,36 @@ const start = async () => {
 	bot.use((ctx, next) => {
 		console.log('new message', ctx.message)
 		return next()
+	})
+
+	// Register middleware to find or create user by telegram ID
+	bot.use(async (ctx: CustomContext, next) => {
+		const userTelegramID = ctx.from.id
+
+		const results = await findUserByTelegramId.run(
+			{ telegram_id: userTelegramID.toString() },
+			client,
+		)
+
+		// TODO: Create type for all tables. Maybe PGTyped gives that to us?
+		let user: any
+		if (results.length === 0) {
+			const result = await createUser.run(
+				{
+					name: ctx.from.first_name,
+					telegram_id: userTelegramID.toString(),
+				},
+				client,
+			)
+			if (results.length) {
+				user = result[0]
+			}
+		} else {
+			user = results[0] // as User
+		}
+
+		ctx.user = user
+		next()
 	})
 
 	await bot.telegram.setMyCommands([
