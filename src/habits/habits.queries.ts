@@ -19,15 +19,13 @@ export interface IFindHabitsQuery {
   result: IFindHabitsResult;
 }
 
-const findHabitsIR: any = {"usedParamSet":{},"params":[],"statement":"select\n\t*\nfrom\n\thabits"};
+const findHabitsIR: any = {"usedParamSet":{},"params":[],"statement":"select *\nfrom habits"};
 
 /**
  * Query generated from SQL:
  * ```
- * select
- * 	*
- * from
- * 	habits
+ * select *
+ * from habits
  * ```
  */
 export const findHabits = new PreparedQuery<IFindHabitsParams,IFindHabitsResult>(findHabitsIR);
@@ -53,17 +51,14 @@ export interface IFindHabitByTitleQuery {
   result: IFindHabitByTitleResult;
 }
 
-const findHabitByTitleIR: any = {"usedParamSet":{"title":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":38,"b":43}]}],"statement":"select\n\t*\nfrom\n\thabits\nwhere\n\ttitle = :title"};
+const findHabitByTitleIR: any = {"usedParamSet":{"title":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":35,"b":40}]}],"statement":"select *\nfrom habits\nwhere title = :title"};
 
 /**
  * Query generated from SQL:
  * ```
- * select
- * 	*
- * from
- * 	habits
- * where
- * 	title = :title
+ * select *
+ * from habits
+ * where title = :title
  * ```
  */
 export const findHabitByTitle = new PreparedQuery<IFindHabitByTitleParams,IFindHabitByTitleResult>(findHabitByTitleIR);
@@ -88,17 +83,14 @@ export interface IFindHabitCompletionsForUserQuery {
   result: IFindHabitCompletionsForUserResult;
 }
 
-const findHabitCompletionsForUserIR: any = {"usedParamSet":{"user_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":58}]}],"statement":"select\n\t*\nfrom\n\thabit_completions\nwhere\n\tuser_id = :user_id"};
+const findHabitCompletionsForUserIR: any = {"usedParamSet":{"user_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":48,"b":55}]}],"statement":"select *\nfrom habit_completions\nwhere user_id = :user_id"};
 
 /**
  * Query generated from SQL:
  * ```
- * select
- * 	*
- * from
- * 	habit_completions
- * where
- * 	user_id = :user_id
+ * select *
+ * from habit_completions
+ * where user_id = :user_id
  * ```
  */
 export const findHabitCompletionsForUser = new PreparedQuery<IFindHabitCompletionsForUserParams,IFindHabitCompletionsForUserResult>(findHabitCompletionsForUserIR);
@@ -123,18 +115,15 @@ export interface IFindHabitCompletionsForUserTodayQuery {
   result: IFindHabitCompletionsForUserTodayResult;
 }
 
-const findHabitCompletionsForUserTodayIR: any = {"usedParamSet":{"user_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":58}]}],"statement":"select\n\t*\nfrom\n\thabit_completions\nwhere\n\tuser_id = :user_id\n\tand completed_at > now() - interval '1 day'"};
+const findHabitCompletionsForUserTodayIR: any = {"usedParamSet":{"user_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":48,"b":55}]}],"statement":"select *\nfrom habit_completions\nwhere user_id = :user_id\n  and completed_at > now() - interval '1 day'"};
 
 /**
  * Query generated from SQL:
  * ```
- * select
- * 	*
- * from
- * 	habit_completions
- * where
- * 	user_id = :user_id
- * 	and completed_at > now() - interval '1 day'
+ * select *
+ * from habit_completions
+ * where user_id = :user_id
+ *   and completed_at > now() - interval '1 day'
  * ```
  */
 export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitCompletionsForUserTodayParams,IFindHabitCompletionsForUserTodayResult>(findHabitCompletionsForUserTodayIR);
@@ -155,15 +144,13 @@ export interface ICreateHabitQuery {
   result: ICreateHabitResult;
 }
 
-const createHabitIR: any = {"usedParamSet":{"title":true,"description":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":50,"b":55}]},{"name":"description","required":false,"transform":{"type":"scalar"},"locs":[{"a":58,"b":69}]}],"statement":"insert into\n\thabits (title, description)\nvalues\n\t(:title, :description)"};
+const createHabitIR: any = {"usedParamSet":{"title":true,"description":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":48,"b":53}]},{"name":"description","required":false,"transform":{"type":"scalar"},"locs":[{"a":56,"b":67}]}],"statement":"insert into habits (title, description)\nvalues (:title, :description)"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into
- * 	habits (title, description)
- * values
- * 	(:title, :description)
+ * insert into habits (title, description)
+ * values (:title, :description)
  * ```
  */
 export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResult>(createHabitIR);
@@ -184,15 +171,13 @@ export interface ILogHabitCompletionQuery {
   result: ILogHabitCompletionResult;
 }
 
-const logHabitCompletionIR: any = {"usedParamSet":{"user_id":true,"habit_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":74,"b":81}]},{"name":"habit_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":84,"b":92}]}],"statement":"insert into\n\thabit_completions (user_id, habit_id, completed_at)\nvalues\n\t(:user_id, :habit_id, now())"};
+const logHabitCompletionIR: any = {"usedParamSet":{"user_id":true,"habit_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":72,"b":79}]},{"name":"habit_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":82,"b":90}]}],"statement":"insert into habit_completions (user_id, habit_id, completed_at)\nvalues (:user_id, :habit_id, now())"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into
- * 	habit_completions (user_id, habit_id, completed_at)
- * values
- * 	(:user_id, :habit_id, now())
+ * insert into habit_completions (user_id, habit_id, completed_at)
+ * values (:user_id, :habit_id, now())
  * ```
  */
 export const logHabitCompletion = new PreparedQuery<ILogHabitCompletionParams,ILogHabitCompletionResult>(logHabitCompletionIR);
