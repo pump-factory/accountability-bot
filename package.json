@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc && node dist/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "start": "tsc && node dist/server.js",
     "generate": "pgtyped -c pg-typed-config.json"
   },
@@ -17,7 +17,10 @@
     "@types/node": "^20.6.1",
     "@types/node-cron": "^3.0.8",
     "@types/pg": "^8.10.2",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
