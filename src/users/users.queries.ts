@@ -3,14 +3,14 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'FindUserByTelegramId' parameters type */
 export interface IFindUserByTelegramIdParams {
-  telegram_id?: number | null | void;
+  telegram_id?: number | string | null | void;
 }
 
 /** 'FindUserByTelegramId' return type */
 export interface IFindUserByTelegramIdResult {
   created_at: Date;
   name: string;
-  telegram_id: number;
+  telegram_id: string;
   updated_at: Date;
 }
 
@@ -37,14 +37,14 @@ export const findUserByTelegramId = new PreparedQuery<IFindUserByTelegramIdParam
 /** 'CreateUser' parameters type */
 export interface ICreateUserParams {
   name?: string | null | void;
-  telegram_id?: number | null | void;
+  telegram_id?: number | string | null | void;
 }
 
 /** 'CreateUser' return type */
 export interface ICreateUserResult {
   created_at: Date;
   name: string;
-  telegram_id: number;
+  telegram_id: string;
   updated_at: Date;
 }
 

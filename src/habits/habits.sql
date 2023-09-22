@@ -41,7 +41,7 @@ SELECT users.*
 FROM users
          LEFT JOIN habit_completions ON (
             habit_completions.user_id = users.telegram_id AND
-            habit_completions.habit_id IN (:habit_ids) AND
+            habit_completions.habit_id IN :habit_ids AND
             habit_completions.completed_at = CURRENT_DATE
     )
 WHERE habit_completions.user_id IS NULL;

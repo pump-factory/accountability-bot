@@ -8,9 +8,8 @@ export type IFindHabitsByChatIdParams = void;
 
 /** 'FindHabitsByChatId' return type */
 export interface IFindHabitsByChatIdResult {
-  chat_id: number;
+  chat_id: string;
   created_at: Date;
-  description: string | null;
   id: number;
   title: string;
   updated_at: Date;
@@ -36,15 +35,14 @@ export const findHabitsByChatId = new PreparedQuery<IFindHabitsByChatIdParams,IF
 
 /** 'FindHabit' parameters type */
 export interface IFindHabitParams {
-  chat_id?: number | null | void;
+  chat_id?: number | string | null | void;
   title?: string | null | void;
 }
 
 /** 'FindHabit' return type */
 export interface IFindHabitResult {
-  chat_id: number;
+  chat_id: string;
   created_at: Date;
-  description: string | null;
   id: number;
   title: string;
   updated_at: Date;
@@ -72,14 +70,14 @@ export const findHabit = new PreparedQuery<IFindHabitParams,IFindHabitResult>(fi
 
 /** 'FindHabitCompletionsForUser' parameters type */
 export interface IFindHabitCompletionsForUserParams {
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'FindHabitCompletionsForUser' return type */
 export interface IFindHabitCompletionsForUserResult {
   completed_at: Date;
   habit_id: number | null;
-  user_id: number;
+  user_id: string;
 }
 
 /** 'FindHabitCompletionsForUser' query type */
@@ -103,14 +101,14 @@ export const findHabitCompletionsForUser = new PreparedQuery<IFindHabitCompletio
 
 /** 'FindHabitCompletionsForUserToday' parameters type */
 export interface IFindHabitCompletionsForUserTodayParams {
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'FindHabitCompletionsForUserToday' return type */
 export interface IFindHabitCompletionsForUserTodayResult {
   completed_at: Date;
   habit_id: number | null;
-  user_id: number;
+  user_id: string;
 }
 
 /** 'FindHabitCompletionsForUserToday' query type */
@@ -135,7 +133,7 @@ export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitComp
 
 /** 'CreateHabit' parameters type */
 export interface ICreateHabitParams {
-  chat_id?: number | null | void;
+  chat_id?: number | string | null | void;
   title?: string | null | void;
 }
 
@@ -163,7 +161,7 @@ export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResu
 /** 'LogHabitCompletion' parameters type */
 export interface ILogHabitCompletionParams {
   habit_id?: number | null | void;
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'LogHabitCompletion' return type */
@@ -193,7 +191,7 @@ export type IFindHabitsGroupedByChatIdParams = void;
 
 /** 'FindHabitsGroupedByChatId' return type */
 export interface IFindHabitsGroupedByChatIdResult {
-  chat_id: number;
+  chat_id: string;
   habits: Json | null;
 }
 
@@ -225,7 +223,7 @@ export interface IFindUsersWithoutHabitCompletionsParams {
 export interface IFindUsersWithoutHabitCompletionsResult {
   created_at: Date;
   name: string;
-  telegram_id: number;
+  telegram_id: string;
   updated_at: Date;
 }
 
@@ -235,7 +233,7 @@ export interface IFindUsersWithoutHabitCompletionsQuery {
   result: IFindUsersWithoutHabitCompletionsResult;
 }
 
-const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"habit_ids":true},"params":[{"name":"habit_ids","required":false,"transform":{"type":"array_spread"},"locs":[{"a":173,"b":182}]}],"statement":"SELECT users.*\nFROM users\n         LEFT JOIN habit_completions ON (\n            habit_completions.user_id = users.telegram_id AND\n            habit_completions.habit_id IN (:habit_ids) AND\n            habit_completions.completed_at = CURRENT_DATE\n    )\nWHERE habit_completions.user_id IS NULL"};
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"habit_ids":true},"params":[{"name":"habit_ids","required":false,"transform":{"type":"array_spread"},"locs":[{"a":172,"b":181}]}],"statement":"SELECT users.*\nFROM users\n         LEFT JOIN habit_completions ON (\n            habit_completions.user_id = users.telegram_id AND\n            habit_completions.habit_id IN :habit_ids AND\n            habit_completions.completed_at = CURRENT_DATE\n    )\nWHERE habit_completions.user_id IS NULL"};
 
 /**
  * Query generated from SQL:
@@ -244,7 +242,7 @@ const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"habit_ids":tru
  * FROM users
  *          LEFT JOIN habit_completions ON (
  *             habit_completions.user_id = users.telegram_id AND
- *             habit_completions.habit_id IN (:habit_ids) AND
+ *             habit_completions.habit_id IN :habit_ids AND
  *             habit_completions.completed_at = CURRENT_DATE
  *     )
  * WHERE habit_completions.user_id IS NULL
