@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "start": "tsc && node dist/server.js",
-    "generate": "pgtyped -c pg-typed-config.json"
+    "generate-sql": "pgtyped -c pg-typed-config.json"
   },
   "keywords": [],
   "author": "",
