@@ -1,11 +1,12 @@
-/* @name FindHabits */
+/* @name FindHabitsByChatId */
 select *
 from habits;
 
-/* @name FindHabitByTitle */
+/* @name FindHabit */
 select *
 from habits
-where title = :title;
+where title = :title
+  and chat_id = :chat_id;
 
 /* @name FindHabitCompletionsForUser */
 select *
@@ -24,4 +25,5 @@ values (:title, :chat_id);
 
 /* @name LogHabitCompletion */
 insert into habit_completions (user_id, habit_id, completed_at)
-values (:user_id, :habit_id, now());
+values (:user_id, :habit_id, now())
+ON CONFLICT DO NOTHING;

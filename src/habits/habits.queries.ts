@@ -1,11 +1,11 @@
 /** Types generated for queries found in "src/habits/habits.sql" */
 import { PreparedQuery } from '@pgtyped/runtime';
 
-/** 'FindHabits' parameters type */
-export type IFindHabitsParams = void;
+/** 'FindHabitsByChatId' parameters type */
+export type IFindHabitsByChatIdParams = void;
 
-/** 'FindHabits' return type */
-export interface IFindHabitsResult {
+/** 'FindHabitsByChatId' return type */
+export interface IFindHabitsByChatIdResult {
   chat_id: number;
   created_at: Date;
   description: string | null;
@@ -14,13 +14,13 @@ export interface IFindHabitsResult {
   updated_at: Date;
 }
 
-/** 'FindHabits' query type */
-export interface IFindHabitsQuery {
-  params: IFindHabitsParams;
-  result: IFindHabitsResult;
+/** 'FindHabitsByChatId' query type */
+export interface IFindHabitsByChatIdQuery {
+  params: IFindHabitsByChatIdParams;
+  result: IFindHabitsByChatIdResult;
 }
 
-const findHabitsIR: any = {"usedParamSet":{},"params":[],"statement":"select *\nfrom habits"};
+const findHabitsByChatIdIR: any = {"usedParamSet":{},"params":[],"statement":"select *\nfrom habits"};
 
 /**
  * Query generated from SQL:
@@ -29,16 +29,17 @@ const findHabitsIR: any = {"usedParamSet":{},"params":[],"statement":"select *\n
  * from habits
  * ```
  */
-export const findHabits = new PreparedQuery<IFindHabitsParams,IFindHabitsResult>(findHabitsIR);
+export const findHabitsByChatId = new PreparedQuery<IFindHabitsByChatIdParams,IFindHabitsByChatIdResult>(findHabitsByChatIdIR);
 
 
-/** 'FindHabitByTitle' parameters type */
-export interface IFindHabitByTitleParams {
+/** 'FindHabit' parameters type */
+export interface IFindHabitParams {
+  chat_id?: number | null | void;
   title?: string | null | void;
 }
 
-/** 'FindHabitByTitle' return type */
-export interface IFindHabitByTitleResult {
+/** 'FindHabit' return type */
+export interface IFindHabitResult {
   chat_id: number;
   created_at: Date;
   description: string | null;
@@ -47,13 +48,13 @@ export interface IFindHabitByTitleResult {
   updated_at: Date;
 }
 
-/** 'FindHabitByTitle' query type */
-export interface IFindHabitByTitleQuery {
-  params: IFindHabitByTitleParams;
-  result: IFindHabitByTitleResult;
+/** 'FindHabit' query type */
+export interface IFindHabitQuery {
+  params: IFindHabitParams;
+  result: IFindHabitResult;
 }
 
-const findHabitByTitleIR: any = {"usedParamSet":{"title":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":35,"b":40}]}],"statement":"select *\nfrom habits\nwhere title = :title"};
+const findHabitIR: any = {"usedParamSet":{"title":true,"chat_id":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":35,"b":40}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":58,"b":65}]}],"statement":"select *\nfrom habits\nwhere title = :title\n  and chat_id = :chat_id"};
 
 /**
  * Query generated from SQL:
@@ -61,9 +62,10 @@ const findHabitByTitleIR: any = {"usedParamSet":{"title":true},"params":[{"name"
  * select *
  * from habits
  * where title = :title
+ *   and chat_id = :chat_id
  * ```
  */
-export const findHabitByTitle = new PreparedQuery<IFindHabitByTitleParams,IFindHabitByTitleResult>(findHabitByTitleIR);
+export const findHabit = new PreparedQuery<IFindHabitParams,IFindHabitResult>(findHabitIR);
 
 
 /** 'FindHabitCompletionsForUser' parameters type */
@@ -171,13 +173,14 @@ export interface ILogHabitCompletionQuery {
   result: ILogHabitCompletionResult;
 }
 
-const logHabitCompletionIR: any = {"usedParamSet":{"user_id":true,"habit_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":72,"b":79}]},{"name":"habit_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":82,"b":90}]}],"statement":"insert into habit_completions (user_id, habit_id, completed_at)\nvalues (:user_id, :habit_id, now())"};
+const logHabitCompletionIR: any = {"usedParamSet":{"user_id":true,"habit_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":72,"b":79}]},{"name":"habit_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":82,"b":90}]}],"statement":"insert into habit_completions (user_id, habit_id, completed_at)\nvalues (:user_id, :habit_id, now())\nON CONFLICT DO NOTHING"};
 
 /**
  * Query generated from SQL:
  * ```
  * insert into habit_completions (user_id, habit_id, completed_at)
  * values (:user_id, :habit_id, now())
+ * ON CONFLICT DO NOTHING
  * ```
  */
 export const logHabitCompletion = new PreparedQuery<ILogHabitCompletionParams,ILogHabitCompletionResult>(logHabitCompletionIR);
