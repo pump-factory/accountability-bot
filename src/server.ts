@@ -72,7 +72,7 @@ const start = async () => {
 
 	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))
 
-	bot.help((ctx) => ctx.reply('Implement me baby!'))
+	bot.help((ctx) => ctx.reply('Implement me daddy!'))
 
 	bot.command('create', async (ctx) => {
 		if (!ctx.payload) {
