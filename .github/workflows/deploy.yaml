@@ -10,6 +10,7 @@ on:
 env:
   REGISTRY: "registry.digitalocean.com/pump-factory"
   IMAGE_NAME: "chatbot"
+  APP_DIR: "accountability-bot"
 
 jobs:
   build_and_push:
@@ -51,6 +52,7 @@ jobs:
           password: ${{ secrets.DROPLET_PASSWORD }}
           script: |
             docker login -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} ${{ env.REGISTRY }}
-            docker-compose down
-            docker-compose pull
-            docker-compose up -d
+            cd ${{ env.APP_DIR }}
+            docker compose down
+            docker compose pull
+            docker compose up -d
