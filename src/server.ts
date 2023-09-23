@@ -75,6 +75,11 @@ const start = async () => {
 	bot.help((ctx) => ctx.reply('Implement me!'))
 
 	bot.command('create', async (ctx) => {
+		if (!ctx.payload) {
+			ctx.reply('please provide a habit name')
+			return
+		}
+
 		const results = await findHabit.run(
 			{ title: ctx.payload, chat_id: ctx.chat.id },
 			client,
