@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-alpine3.18
 
 # Set /app as working directory
 WORKDIR /app
@@ -19,4 +19,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/server.js"]
