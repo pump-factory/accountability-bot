@@ -161,7 +161,7 @@ const start = async () => {
 	 * 	- Find users without a habit_completion for each habit
 	 * 	- DM each user that hasn't completed habit?
 	 */
-	cron.schedule('0 0 * * *', async () => {
+	cron.schedule('30 23 * * *', async () => {
 		const results = await findHabitsGroupedByChatId.run(undefined, client)
 		if (results.length === 0) {
 			return
