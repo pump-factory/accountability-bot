@@ -133,7 +133,7 @@ const start = async () => {
 			return
 		}
 
-		ctx.reply(`logged habit completion for ${habitName}`)
+		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habitName}!`)
 	})
 
 	// Beginning of day message
