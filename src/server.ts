@@ -147,9 +147,14 @@ const start = async () => {
 			const habits = habitJson as { title: string; id: number }[]
 			const habitStr = habits.map((habit) => habit.title).join(', ')
 
+			// await bot.telegram.sendMessage(
+			// 	chat_id,
+			// 	`Let's get accountable for ${habitStr}`,
+			// )
+
 			await bot.telegram.sendMessage(
 				chat_id,
-				`Let's get accountable for ${habitStr}`,
+				"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
 			)
 		}
 	})
@@ -178,14 +183,19 @@ const start = async () => {
 				client,
 			)
 			if (userResults.length === 0) {
-				continue
+				await bot.telegram.sendMessage(
+					chat_id,
+					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
+				)
+			} else {
+				const userNames = userResults.map((user) => user.name)
+				await bot.telegram.sendMessage(
+					chat_id,
+					`${userNames.join(
+						', ',
+					)} still need to complete their habits, go ahead and give them some encouragement!`,
+				)
 			}
-
-			const userNames = userResults.map((user) => user.name)
-			await bot.telegram.sendMessage(
-				chat_id,
-				`${userNames.join(', ')} still need to complete their habits`,
-			)
 		}
 	})
 
