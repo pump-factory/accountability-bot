@@ -132,3 +132,30 @@ const findDistinctChatIdsIR: any = {"usedParamSet":{},"params":[],"statement":"s
 export const findDistinctChatIds = new PreparedQuery<IFindDistinctChatIdsParams,IFindDistinctChatIdsResult>(findDistinctChatIdsIR);
 
 
+/** 'CreateUsersChatsEntryForUser' parameters type */
+export interface ICreateUsersChatsEntryForUserParams {
+  chat_id?: number | string | null | void;
+  user_id?: number | string | null | void;
+}
+
+/** 'CreateUsersChatsEntryForUser' return type */
+export type ICreateUsersChatsEntryForUserResult = void;
+
+/** 'CreateUsersChatsEntryForUser' query type */
+export interface ICreateUsersChatsEntryForUserQuery {
+  params: ICreateUsersChatsEntryForUserParams;
+  result: ICreateUsersChatsEntryForUserResult;
+}
+
+const createUsersChatsEntryForUserIR: any = {"usedParamSet":{"user_id":true,"chat_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":58}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":61,"b":68}]}],"statement":"insert into users_chats (user_id, chat_id)\nvalues (:user_id, :chat_id)"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * insert into users_chats (user_id, chat_id)
+ * values (:user_id, :chat_id)
+ * ```
+ */
+export const createUsersChatsEntryForUser = new PreparedQuery<ICreateUsersChatsEntryForUserParams,ICreateUsersChatsEntryForUserResult>(createUsersChatsEntryForUserIR);
+
+
