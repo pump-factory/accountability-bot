@@ -25,6 +25,7 @@ WHERE habit_completions.user_id IS NULL
 select distinct chat_id
 from users_chats;
 
-/* @name CreateUsersChatsEntryForUser */
+/* @name CreateUsersChats */
 insert into users_chats (user_id, chat_id)
-values (:user_id, :chat_id);
+values (:user_id, :chat_id)
+on conflict do nothing;
