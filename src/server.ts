@@ -5,12 +5,12 @@ import {
 	createHabit,
 	findHabit,
 	findHabitsGroupedByChatId,
-	findUsersWithoutHabitCompletions,
 	logHabitCompletion,
 } from './habits/habits.queries'
 import { Client } from 'pg'
 import { createUser, findUserByTelegramId } from './users/users.queries'
 import { CustomContext } from './types'
+import { remindUsersToCompleteHabits } from './habits'
 
 const start = async () => {
 	const client = new Client({
@@ -147,11 +147,6 @@ const start = async () => {
 			const habits = habitJson as { title: string; id: number }[]
 			const habitStr = habits.map((habit) => habit.title).join(', ')
 
-			// await bot.telegram.sendMessage(
-			// 	chat_id,
-			// 	`Let's get accountable for ${habitStr}`,
-			// )
-
 			await bot.telegram.sendMessage(
 				chat_id,
 				"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
@@ -166,38 +161,7 @@ const start = async () => {
 	 * 	- Find users without a habit_completion for each habit
 	 * 	- DM each user that hasn't completed habit?
 	 */
-	cron.schedule('30 23 * * *', async () => {
-		const results = await findHabitsGroupedByChatId.run(undefined, client)
-		if (results.length === 0) {
-			return
-		}
-
-		for (const { chat_id, habits: habitJson } of results) {
-			const habits = habitJson as { title: string; id: number }[]
-			const habitIds = habits.map((habit) => habit.id)
-
-			const userResults = await findUsersWithoutHabitCompletions.run(
-				{
-					habit_ids: habitIds,
-				},
-				client,
-			)
-			if (userResults.length === 0) {
-				await bot.telegram.sendMessage(
-					chat_id,
-					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
-				)
-			} else {
-				const userNames = userResults.map((user) => user.name)
-				await bot.telegram.sendMessage(
-					chat_id,
-					`${userNames.join(
-						', ',
-					)} still need to complete their habits, go ahead and give them some encouragement!`,
-				)
-			}
-		}
-	})
+	cron.schedule('30 23 * * *', () => remindUsersToCompleteHabits)
 
 	await bot.launch()
 
