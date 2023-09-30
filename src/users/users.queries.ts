@@ -3,14 +3,14 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'FindUserByTelegramId' parameters type */
 export interface IFindUserByTelegramIdParams {
-  telegram_id?: number | string | null | void;
+  telegram_id?: number | null | void;
 }
 
 /** 'FindUserByTelegramId' return type */
 export interface IFindUserByTelegramIdResult {
   created_at: Date;
   name: string;
-  telegram_id: string;
+  telegram_id: number;
   updated_at: Date;
 }
 
@@ -37,14 +37,14 @@ export const findUserByTelegramId = new PreparedQuery<IFindUserByTelegramIdParam
 /** 'CreateUser' parameters type */
 export interface ICreateUserParams {
   name?: string | null | void;
-  telegram_id?: number | string | null | void;
+  telegram_id?: number | null | void;
 }
 
 /** 'CreateUser' return type */
 export interface ICreateUserResult {
   created_at: Date;
   name: string;
-  telegram_id: string;
+  telegram_id: number;
   updated_at: Date;
 }
 
@@ -65,5 +65,70 @@ const createUserIR: any = {"usedParamSet":{"telegram_id":true,"name":true},"para
  * ```
  */
 export const createUser = new PreparedQuery<ICreateUserParams,ICreateUserResult>(createUserIR);
+
+
+/** 'FindUsersWithoutHabitCompletions' parameters type */
+export interface IFindUsersWithoutHabitCompletionsParams {
+  chat_id?: number | string | null | void;
+}
+
+/** 'FindUsersWithoutHabitCompletions' return type */
+export interface IFindUsersWithoutHabitCompletionsResult {
+  created_at: Date;
+  name: string;
+  telegram_id: number;
+  updated_at: Date;
+}
+
+/** 'FindUsersWithoutHabitCompletions' query type */
+export interface IFindUsersWithoutHabitCompletionsQuery {
+  params: IFindUsersWithoutHabitCompletionsParams;
+  result: IFindUsersWithoutHabitCompletionsResult;
+}
+
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chat_id":true},"params":[{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":399,"b":406}]}],"statement":"SELECT users.*\nFROM users\n         JOIN users_chats ON users.telegram_id = users_chats.user_id\n         LEFT JOIN habit_completions ON (\n            habit_completions.user_id = users.telegram_id AND\n            habit_completions.completed_at = CURRENT_DATE\n    )\n         LEFT JOIN habits ON habits.id = habit_completions.habit_id\nWHERE habit_completions.user_id IS NULL\n  AND users_chats.chat_id = :chat_id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT users.*
+ * FROM users
+ *          JOIN users_chats ON users.telegram_id = users_chats.user_id
+ *          LEFT JOIN habit_completions ON (
+ *             habit_completions.user_id = users.telegram_id AND
+ *             habit_completions.completed_at = CURRENT_DATE
+ *     )
+ *          LEFT JOIN habits ON habits.id = habit_completions.habit_id
+ * WHERE habit_completions.user_id IS NULL
+ *   AND users_chats.chat_id = :chat_id
+ * ```
+ */
+export const findUsersWithoutHabitCompletions = new PreparedQuery<IFindUsersWithoutHabitCompletionsParams,IFindUsersWithoutHabitCompletionsResult>(findUsersWithoutHabitCompletionsIR);
+
+
+/** 'FindDistinctChatIds' parameters type */
+export type IFindDistinctChatIdsParams = void;
+
+/** 'FindDistinctChatIds' return type */
+export interface IFindDistinctChatIdsResult {
+  chat_id: string;
+}
+
+/** 'FindDistinctChatIds' query type */
+export interface IFindDistinctChatIdsQuery {
+  params: IFindDistinctChatIdsParams;
+  result: IFindDistinctChatIdsResult;
+}
+
+const findDistinctChatIdsIR: any = {"usedParamSet":{},"params":[],"statement":"select distinct chat_id\nfrom users_chats"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * select distinct chat_id
+ * from users_chats
+ * ```
+ */
+export const findDistinctChatIds = new PreparedQuery<IFindDistinctChatIdsParams,IFindDistinctChatIdsResult>(findDistinctChatIdsIR);
 
 

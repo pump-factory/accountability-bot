@@ -22,3 +22,5 @@ WHERE habit_completions.user_id IS NULL
   AND users_chats.chat_id = :chat_id;
 
 /* @name FindDistinctChatIds */
+select distinct chat_id
+from users_chats;
