@@ -25,3 +25,10 @@ CREATE TABLE IF NOT EXISTS habit_completions (
 	completed_at DATE NOT NULL,
     PRIMARY KEY (user_id, completed_at)
 );
+
+CREATE TABLE IF NOT EXISTS users_chats (
+    user_id bigint REFERENCES users(telegram_id),
+    chat_id bigint NOT NULL,
+    PRIMARY KEY (user_id, chat_id)
+);
+
