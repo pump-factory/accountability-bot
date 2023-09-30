@@ -8,9 +8,10 @@ import {
 	logHabitCompletion,
 } from './habits/habits.queries'
 import { Client } from 'pg'
-import { createUser, findUserByTelegramId } from './users/users.queries'
+import { findUserByTelegramId } from './users/users.queries'
 import { CustomContext } from './types'
 import { remindUsersToCompleteHabits } from './habits'
+import { createUserAndUsersChats } from './users'
 
 const start = async () => {
 	const client = new Client({
@@ -37,25 +38,17 @@ const start = async () => {
 			{ telegram_id: userTelegramID },
 			client,
 		)
-
-		// TODO: Create type for all tables. Maybe PGTyped gives that to us?
-		let user: any
-		if (results.length === 0) {
-			const result = await createUser.run(
-				{
-					name: ctx.from.first_name,
-					telegram_id: userTelegramID,
-				},
-				client,
-			)
-			if (result.length) {
-				user = result[0]
-			}
-		} else {
-			user = results[0] // as User
+		if (results.length >= 1) {
+			ctx.user = results[0]
+			return next()
 		}
 
-		ctx.user = user
+		ctx.user = await createUserAndUsersChats(
+			ctx.from.first_name,
+			userTelegramID,
+			ctx.chat.id,
+			client,
+		)
 		next()
 	})
 
