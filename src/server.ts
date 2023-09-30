@@ -30,7 +30,7 @@ const start = async () => {
 		return next()
 	})
 
-	// Register middleware to find or create user by telegram ID
+	// Register middleware to find or create user and user_chats rows
 	bot.use(async (ctx: CustomContext, next) => {
 		const userTelegramID = ctx.from.id
 
@@ -154,7 +154,7 @@ const start = async () => {
 	 * 	- Find users without a habit_completion for each habit
 	 * 	- DM each user that hasn't completed habit?
 	 */
-	cron.schedule('30 23 * * *', () => remindUsersToCompleteHabits)
+	cron.schedule('30 23 * * *', () => remindUsersToCompleteHabits(bot, client))
 
 	await bot.launch()
 
