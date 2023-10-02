@@ -1,4 +1,4 @@
--- CREATE ROLE "accountability-bot" WITH LOGIN PASSWORD 'password';
+CREATE ROLE "accountability-bot" WITH LOGIN PASSWORD 'password';
 
 CREATE TABLE IF NOT EXISTS users (
 	name TEXT NOT NULL,
