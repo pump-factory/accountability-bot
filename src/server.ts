@@ -7,19 +7,15 @@ import {
 	findHabitsGroupedByChatId,
 	logHabitCompletion,
 } from './habits/habits.queries'
-import { Client } from 'pg'
-import { findUserByTelegramId } from './users/users.queries'
+import {
+	findUserByTelegramId,
+	findUsersWithoutHabitCompletions,
+} from './users/users.queries'
 import { CustomContext } from './types'
-import { remindUsersToCompleteHabits } from './habits'
 import { createUserAndUsersChats } from './users'
+import { client } from './db'
 
 const start = async () => {
-	const client = new Client({
-		user: process.env.POSTGRES_USER,
-		password: process.env.POSTGRES_PASSWORD,
-		database: process.env.POSTGRES_DATABASE,
-		host: process.env.POSTGRES_HOST,
-	})
 	await client.connect()
 
 	const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -154,7 +150,39 @@ const start = async () => {
 	 * 	- Find users without a habit_completion for each habit
 	 * 	- DM each user that hasn't completed habit?
 	 */
-	cron.schedule('30 23 * * *', () => remindUsersToCompleteHabits(bot, client))
+	cron.schedule('30 23 * * *', async () => {
+		// Find distinct chat IDs
+		const chatIdResults = await findHabitsGroupedByChatId.run(undefined, client)
+		if (chatIdResults.length === 0) {
+			return
+		}
+
+		// For each chat ID, find users without a habit completion for each habit
+		for (const { chat_id } of chatIdResults) {
+			const usersWithoutCompletion = await findUsersWithoutHabitCompletions.run(
+				{ chat_id },
+				client,
+			)
+
+			// If everyone completed their habit, send congratulations
+			if (usersWithoutCompletion.length === 0) {
+				await bot.telegram.sendMessage(
+					chat_id,
+					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
+				)
+				continue
+			}
+
+			// Remind any users who haven't completed their habit to do so
+			const userNames = usersWithoutCompletion.map((user) => user.name)
+			await bot.telegram.sendMessage(
+				chat_id,
+				`${userNames.join(
+					', ',
+				)} still need to complete their habits, go ahead and give them some encouragement!`,
+			)
+		}
+	})
 
 	await bot.launch()
 
