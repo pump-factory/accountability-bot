@@ -3,7 +3,7 @@ drop table if exists habit_completions;
 drop table if exists habits;
 drop table if exists users;
 
-drop role "accountability-bot";
+drop role if exists "accountability-bot";
 
 DO
 $$
