@@ -1,30 +1,40 @@
 -- Create four users
 INSERT INTO users (name, telegram_id)
-VALUES ('User1', 1),
-       ('User2', 2),
-       ('User3', 3),
-       ('User4', 4);
+VALUES ('Quinn', 1),
+       ('Dave', 2),
+       ('Nicole', 3),
+       ('Harrison', 4);
 
 -- Create two habits, one per chatID
 INSERT INTO habits (chat_id, title)
-VALUES (-999, 'Habit1'),
-       (-1000, 'Habit2');
+VALUES (-1000, 'Meditate'),
+       (-999, 'Gym');
 
 -- Create user-chat associations
 INSERT INTO users_chats (user_id, chat_id)
-VALUES (1, -999),
-       (2, -999),
-       (3, -1000),
-       (4, -1000);
+VALUES
+    -- Harrison & Quinn in a chat tracking Gym
+    (1, -999),
+    (4, -999),
+
+    -- Dave Nicole & Harrison in a chat tracking Meditation
+    (2, -1000),
+    (3, -1000),
+    (4, -1000);
 
 -- Log a few habits for previous days for each habit
 INSERT INTO habit_completions (user_id, habit_id, completed_at)
-VALUES (1, 1, '2023-09-10'),
-       (1, 1, '2023-09-11'),
+VALUES (1, 2, '2023-09-10'),
+       (1, 2, '2023-09-11'),
        (2, 1, '2023-09-12'),
-       (3, 2, '2023-09-10'),
-       (4, 2, '2023-09-11');
+       (3, 1, '2023-09-10'),
+       (4, 2, '2023-09-11'),
+       (4, 1, '2023-09-11');
 
--- Log a completion for today for one user in one chat
+-- Quinn goes to the gym today
 INSERT INTO habit_completions (user_id, habit_id, completed_at)
-VALUES (1, 1, CURRENT_DATE);
+VALUES (1, 2, CURRENT_DATE);
+
+-- Harrison meditates today
+INSERT INTO habit_completions (user_id, habit_id, completed_at)
+VALUES (4, 1, CURRENT_DATE);
