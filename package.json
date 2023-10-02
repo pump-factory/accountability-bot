@@ -7,7 +7,9 @@
     "build": "tsc",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "start": "tsc && node dist/server.js",
-    "generate-sql": "pgtyped -c pg-typed-config.json"
+    "generate-sql": "pgtyped -c pg-typed-config.json",
+    "test": "NODE_ENV=test vitest run --config vitest.config.ts",
+    "test:watch": "NODE_ENV=test vitest --config vitest.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,8 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "@pgtyped/runtime": "^2.1.0",
