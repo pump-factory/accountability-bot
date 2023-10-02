@@ -1,4 +1,9 @@
-CREATE ROLE IF NOT EXISTS "accountability-bot" WITH LOGIN PASSWORD 'password';
+DO $$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'accountability-bot') THEN
+CREATE ROLE "accountability-bot" WITH LOGIN PASSWORD 'password';
+   END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS users (
 	name TEXT NOT NULL,
