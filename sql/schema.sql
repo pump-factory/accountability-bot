@@ -1,9 +1,5 @@
 -- CREATE ROLE "accountability-bot" WITH LOGIN PASSWORD 'password';
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "accountability-bot";
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "accountability-bot";
-GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "accountability-bot";
-
 CREATE TABLE IF NOT EXISTS users (
 	name TEXT NOT NULL,
 	telegram_id bigint PRIMARY KEY NOT NULL,
@@ -32,3 +28,6 @@ CREATE TABLE IF NOT EXISTS users_chats (
     PRIMARY KEY (user_id, chat_id)
 );
 
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "accountability-bot";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "accountability-bot";
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "accountability-bot";
