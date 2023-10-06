@@ -4,13 +4,14 @@ import { PreparedQuery } from '@pgtyped/runtime';
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 /** 'FindHabitsByChatId' parameters type */
-export type IFindHabitsByChatIdParams = void;
+export interface IFindHabitsByChatIdParams {
+  chat_id?: number | string | null | void;
+}
 
 /** 'FindHabitsByChatId' return type */
 export interface IFindHabitsByChatIdResult {
-  chat_id: number;
+  chat_id: string;
   created_at: Date;
-  description: string | null;
   id: number;
   title: string;
   updated_at: Date;
@@ -22,13 +23,14 @@ export interface IFindHabitsByChatIdQuery {
   result: IFindHabitsByChatIdResult;
 }
 
-const findHabitsByChatIdIR: any = {"usedParamSet":{},"params":[],"statement":"select *\nfrom habits"};
+const findHabitsByChatIdIR: any = {"usedParamSet":{"chat_id":true},"params":[{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":37,"b":44}]}],"statement":"select *\nfrom habits\nwhere chat_id = :chat_id"};
 
 /**
  * Query generated from SQL:
  * ```
  * select *
  * from habits
+ * where chat_id = :chat_id
  * ```
  */
 export const findHabitsByChatId = new PreparedQuery<IFindHabitsByChatIdParams,IFindHabitsByChatIdResult>(findHabitsByChatIdIR);
@@ -36,15 +38,14 @@ export const findHabitsByChatId = new PreparedQuery<IFindHabitsByChatIdParams,IF
 
 /** 'FindHabit' parameters type */
 export interface IFindHabitParams {
-  chat_id?: number | null | void;
-  title?: string | null | void;
+  chat_id?: number | string | null | void;
+  id?: number | null | void;
 }
 
 /** 'FindHabit' return type */
 export interface IFindHabitResult {
-  chat_id: number;
+  chat_id: string;
   created_at: Date;
-  description: string | null;
   id: number;
   title: string;
   updated_at: Date;
@@ -56,7 +57,42 @@ export interface IFindHabitQuery {
   result: IFindHabitResult;
 }
 
-const findHabitIR: any = {"usedParamSet":{"title":true,"chat_id":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":35,"b":40}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":58,"b":65}]}],"statement":"select *\nfrom habits\nwhere title = :title\n  and chat_id = :chat_id"};
+const findHabitIR: any = {"usedParamSet":{"id":true,"chat_id":true},"params":[{"name":"id","required":false,"transform":{"type":"scalar"},"locs":[{"a":32,"b":34}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":52,"b":59}]}],"statement":"select *\nfrom habits\nwhere id = :id\n  and chat_id = :chat_id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * select *
+ * from habits
+ * where id = :id
+ *   and chat_id = :chat_id
+ * ```
+ */
+export const findHabit = new PreparedQuery<IFindHabitParams,IFindHabitResult>(findHabitIR);
+
+
+/** 'FindHabitByTitle' parameters type */
+export interface IFindHabitByTitleParams {
+  chat_id?: number | string | null | void;
+  title?: string | null | void;
+}
+
+/** 'FindHabitByTitle' return type */
+export interface IFindHabitByTitleResult {
+  chat_id: string;
+  created_at: Date;
+  id: number;
+  title: string;
+  updated_at: Date;
+}
+
+/** 'FindHabitByTitle' query type */
+export interface IFindHabitByTitleQuery {
+  params: IFindHabitByTitleParams;
+  result: IFindHabitByTitleResult;
+}
+
+const findHabitByTitleIR: any = {"usedParamSet":{"title":true,"chat_id":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":35,"b":40}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":58,"b":65}]}],"statement":"select *\nfrom habits\nwhere title = :title\n  and chat_id = :chat_id"};
 
 /**
  * Query generated from SQL:
@@ -67,19 +103,19 @@ const findHabitIR: any = {"usedParamSet":{"title":true,"chat_id":true},"params":
  *   and chat_id = :chat_id
  * ```
  */
-export const findHabit = new PreparedQuery<IFindHabitParams,IFindHabitResult>(findHabitIR);
+export const findHabitByTitle = new PreparedQuery<IFindHabitByTitleParams,IFindHabitByTitleResult>(findHabitByTitleIR);
 
 
 /** 'FindHabitCompletionsForUser' parameters type */
 export interface IFindHabitCompletionsForUserParams {
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'FindHabitCompletionsForUser' return type */
 export interface IFindHabitCompletionsForUserResult {
   completed_at: Date;
-  habit_id: number | null;
-  user_id: number;
+  habit_id: number;
+  user_id: string;
 }
 
 /** 'FindHabitCompletionsForUser' query type */
@@ -103,14 +139,14 @@ export const findHabitCompletionsForUser = new PreparedQuery<IFindHabitCompletio
 
 /** 'FindHabitCompletionsForUserToday' parameters type */
 export interface IFindHabitCompletionsForUserTodayParams {
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'FindHabitCompletionsForUserToday' return type */
 export interface IFindHabitCompletionsForUserTodayResult {
   completed_at: Date;
-  habit_id: number | null;
-  user_id: number;
+  habit_id: number;
+  user_id: string;
 }
 
 /** 'FindHabitCompletionsForUserToday' query type */
@@ -135,7 +171,7 @@ export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitComp
 
 /** 'CreateHabit' parameters type */
 export interface ICreateHabitParams {
-  chat_id?: number | null | void;
+  chat_id?: number | string | null | void;
   title?: string | null | void;
 }
 
@@ -163,7 +199,7 @@ export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResu
 /** 'LogHabitCompletion' parameters type */
 export interface ILogHabitCompletionParams {
   habit_id?: number | null | void;
-  user_id?: number | null | void;
+  user_id?: number | string | null | void;
 }
 
 /** 'LogHabitCompletion' return type */
@@ -193,7 +229,7 @@ export type IFindHabitsGroupedByChatIdParams = void;
 
 /** 'FindHabitsGroupedByChatId' return type */
 export interface IFindHabitsGroupedByChatIdResult {
-  chat_id: number;
+  chat_id: string;
   habits: Json | null;
 }
 

@@ -3,6 +3,7 @@ services:
   chatbot:
     image: registry.digitalocean.com/pump-factory/chatbot
     working_dir: /app
+    restart: always
     ports:
       - 3000:3000
     depends_on:

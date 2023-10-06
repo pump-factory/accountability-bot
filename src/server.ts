@@ -1,9 +1,11 @@
 import 'dotenv/config'
-import { Telegraf } from 'telegraf'
+import { Markup, Telegraf } from 'telegraf'
 import cron from 'node-cron'
 import {
 	createHabit,
 	findHabit,
+	findHabitByTitle,
+	findHabitsByChatId,
 	findHabitsGroupedByChatId,
 	logHabitCompletion,
 } from './habits/habits.queries'
@@ -69,7 +71,7 @@ const start = async () => {
 			return
 		}
 
-		const results = await findHabit.run(
+		const results = await findHabitByTitle.run(
 			{ title: ctx.payload, chat_id: ctx.chat.id },
 			client,
 		)
@@ -91,19 +93,34 @@ const start = async () => {
 		await ctx.reply(`Created habit '${ctx.payload}'`)
 	})
 
-	/**
-	 * Log the completion of a habit
-	 * TODO: Figure out how to pass habits. Probably by name. Probably will
-	 * need to downcase and suggest similar habits in case of misspellings
-	 */
 	bot.command('log', async (ctx) => {
-		const habitName = ctx.payload
+		const habits = await findHabitsByChatId.run(
+			{ chat_id: ctx.chat.id },
+			client,
+		)
+		ctx.reply(
+			'Which habit do you want to complete?',
+			Markup.inlineKeyboard(
+				habits.map((habit) =>
+					Markup.button.callback(habit.title, habit.id.toString()),
+				),
+			),
+		)
+	})
+
+	bot.action(/.+/, async (ctx) => {
+		await ctx.editMessageReplyMarkup(undefined)
+		if (!ctx.match[0]) {
+			ctx.reply('error logging habit completion. please try again')
+			return
+		}
+		const habitId = parseInt(ctx.match[0])
 		const results = await findHabit.run(
-			{ title: habitName, chat_id: ctx.chat.id },
+			{ id: habitId, chat_id: ctx.chat.id },
 			client,
 		)
 		if (results.length === 0) {
-			ctx.reply(`habit ${habitName} does not exist`)
+			ctx.reply(`habit with ID ${habitId} does not exist`)
 			return
 		}
 
@@ -122,7 +139,7 @@ const start = async () => {
 			return
 		}
 
-		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habitName}!`)
+		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
 	})
 
 	// Beginning of day message

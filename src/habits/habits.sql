@@ -1,8 +1,15 @@
 /* @name FindHabitsByChatId */
 select *
-from habits;
+from habits
+where chat_id = :chat_id;
 
 /* @name FindHabit */
+select *
+from habits
+where id = :id
+  and chat_id = :chat_id;
+
+/* @name findHabitByTitle */
 select *
 from habits
 where title = :title
