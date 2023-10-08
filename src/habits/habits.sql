@@ -33,18 +33,29 @@ where "habitFollowerId" = :userId
   and "createdAt" > now() - interval '1 day';
 
 /* @name CreateHabit */
-with new_habit as (
-    insert into "Habit" (id, title, description)
-        values (uuid_generate_v4(), :title, 'telegram habit')
-        returning id)
-insert
-into "HabitChat" ("habitId", "chatId")
-    (select id, :chatId
-     from new_habit);
+WITH new_habit AS (
+    INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
+        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
+        RETURNING id),
+     new_habit_chat AS (
+         INSERT INTO "HabitChat" ("habitId", "chatId")
+             SELECT id, :chatId
+             FROM new_habit)
+INSERT
+INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
+SELECT uuid_generate_v4(), nh.id, uc."userId", now()
+FROM new_habit nh
+         CROSS JOIN "UserChat" uc
+WHERE uc."chatId" = :chatId;
+
 
 /* @name LogHabitCompletion */
-insert into "HabitEvent" (id, "habitFollowerId")
-values (uuid_generate_v4(), (select id from "HabitFollower" where "userId" = :userId and "habitId" = :habitId))
+insert
+into "HabitEvent" (id, "habitFollowerId")
+values (uuid_generate_v4(), (select id
+                             from "HabitFollower"
+                             where "userId" = (select id from "User" where "telegramId" = :telegramId)
+                               and "habitId" = :habitId))
 ON CONFLICT DO NOTHING;
 
 /*  @name FindHabitsGroupedByChatId */

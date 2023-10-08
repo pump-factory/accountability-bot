@@ -200,19 +200,25 @@ export interface ICreateHabitQuery {
   result: ICreateHabitResult;
 }
 
-const createHabitIR: any = {"usedParamSet":{"title":true,"chatId":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":105,"b":110}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":215,"b":221}]}],"statement":"with new_habit as (\n    insert into \"Habit\" (id, title, description)\n        values (uuid_generate_v4(), :title, 'telegram habit')\n        returning id)\ninsert\ninto \"HabitChat\" (\"habitId\", \"chatId\")\n    (select id, :chatId\n     from new_habit)"};
+const createHabitIR: any = {"usedParamSet":{"title":true,"chatId":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":131,"b":136}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":306,"b":312},{"a":535,"b":541}]}],"statement":"WITH new_habit AS (\n    INSERT INTO \"Habit\" (id, title, description, type, cadence, frequency)\n        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)\n        RETURNING id),\n     new_habit_chat AS (\n         INSERT INTO \"HabitChat\" (\"habitId\", \"chatId\")\n             SELECT id, :chatId\n             FROM new_habit)\nINSERT\nINTO \"HabitFollower\" (id, \"habitId\", \"userId\", \"createdAt\")\nSELECT uuid_generate_v4(), nh.id, uc.\"userId\", now()\nFROM new_habit nh\n         CROSS JOIN \"UserChat\" uc\nWHERE uc.\"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
  * ```
- * with new_habit as (
- *     insert into "Habit" (id, title, description)
- *         values (uuid_generate_v4(), :title, 'telegram habit')
- *         returning id)
- * insert
- * into "HabitChat" ("habitId", "chatId")
- *     (select id, :chatId
- *      from new_habit)
+ * WITH new_habit AS (
+ *     INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
+ *         VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
+ *         RETURNING id),
+ *      new_habit_chat AS (
+ *          INSERT INTO "HabitChat" ("habitId", "chatId")
+ *              SELECT id, :chatId
+ *              FROM new_habit)
+ * INSERT
+ * INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
+ * SELECT uuid_generate_v4(), nh.id, uc."userId", now()
+ * FROM new_habit nh
+ *          CROSS JOIN "UserChat" uc
+ * WHERE uc."chatId" = :chatId
  * ```
  */
 export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResult>(createHabitIR);
@@ -221,7 +227,7 @@ export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResu
 /** 'LogHabitCompletion' parameters type */
 export interface ILogHabitCompletionParams {
   habitId?: string | null | void;
-  userId?: string | null | void;
+  telegramId?: number | string | null | void;
 }
 
 /** 'LogHabitCompletion' return type */
@@ -233,13 +239,17 @@ export interface ILogHabitCompletionQuery {
   result: ILogHabitCompletionResult;
 }
 
-const logHabitCompletionIR: any = {"usedParamSet":{"userId":true,"habitId":true},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":126,"b":132}]},{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":150,"b":157}]}],"statement":"insert into \"HabitEvent\" (id, \"habitFollowerId\")\nvalues (uuid_generate_v4(), (select id from \"HabitFollower\" where \"userId\" = :userId and \"habitId\" = :habitId))\nON CONFLICT DO NOTHING"};
+const logHabitCompletionIR: any = {"usedParamSet":{"telegramId":true,"habitId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":228,"b":238}]},{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":288,"b":295}]}],"statement":"insert\ninto \"HabitEvent\" (id, \"habitFollowerId\")\nvalues (uuid_generate_v4(), (select id\n                             from \"HabitFollower\"\n                             where \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n                               and \"habitId\" = :habitId))\nON CONFLICT DO NOTHING"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into "HabitEvent" (id, "habitFollowerId")
- * values (uuid_generate_v4(), (select id from "HabitFollower" where "userId" = :userId and "habitId" = :habitId))
+ * insert
+ * into "HabitEvent" (id, "habitFollowerId")
+ * values (uuid_generate_v4(), (select id
+ *                              from "HabitFollower"
+ *                              where "userId" = (select id from "User" where "telegramId" = :telegramId)
+ *                                and "habitId" = :habitId))
  * ON CONFLICT DO NOTHING
  * ```
  */
