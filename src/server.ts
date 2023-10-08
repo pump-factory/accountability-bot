@@ -72,7 +72,7 @@ const start = async () => {
 		}
 
 		const results = await findHabitByTitle.run(
-			{ title: ctx.payload, chat_id: ctx.chat.id },
+			{ title: ctx.payload, chatId: ctx.chat.id },
 			client,
 		)
 		if (results.length > 0) {
@@ -81,10 +81,7 @@ const start = async () => {
 		}
 
 		try {
-			await createHabit.run(
-				{ title: ctx.payload, chat_id: ctx.chat.id },
-				client,
-			)
+			await createHabit.run({ title: ctx.payload, chatId: ctx.chat.id }, client)
 		} catch (err) {
 			ctx.reply('error creating habit. please try again')
 			return
@@ -94,10 +91,7 @@ const start = async () => {
 	})
 
 	bot.command('log', async (ctx) => {
-		const habits = await findHabitsByChatId.run(
-			{ chat_id: ctx.chat.id },
-			client,
-		)
+		const habits = await findHabitsByChatId.run({ chatId: ctx.chat.id }, client)
 		ctx.reply(
 			'Which habit do you want to complete?',
 			Markup.inlineKeyboard(
@@ -114,9 +108,9 @@ const start = async () => {
 			ctx.reply('error logging habit completion. please try again')
 			return
 		}
-		const habitId = parseInt(ctx.match[0])
+		const habitId = ctx.match[0]
 		const results = await findHabit.run(
-			{ id: habitId, chat_id: ctx.chat.id },
+			{ habitId, chatId: ctx.chat.id },
 			client,
 		)
 		if (results.length === 0) {
@@ -149,12 +143,12 @@ const start = async () => {
 			return
 		}
 
-		for (const { chat_id, habits: habitJson } of results) {
+		for (const { chatId, habits: habitJson } of results) {
 			const habits = habitJson as { title: string; id: number }[]
 			const habitStr = habits.map((habit) => habit.title).join(', ')
 
 			await bot.telegram.sendMessage(
-				chat_id,
+				chatId,
 				"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
 			)
 		}
@@ -175,16 +169,16 @@ const start = async () => {
 		}
 
 		// For each chat ID, find users without a habit completion for each habit
-		for (const { chat_id } of chatIdResults) {
+		for (const { chatId } of chatIdResults) {
 			const usersWithoutCompletion = await findUsersWithoutHabitCompletions.run(
-				{ chat_id },
+				{ chatId },
 				client,
 			)
 
 			// If everyone completed their habit, send congratulations
 			if (usersWithoutCompletion.length === 0) {
 				await bot.telegram.sendMessage(
-					chat_id,
+					chatId,
 					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
 				)
 				continue
@@ -193,7 +187,7 @@ const start = async () => {
 			// Remind any users who haven't completed their habit to do so
 			const userNames = usersWithoutCompletion.map((user) => user.name)
 			await bot.telegram.sendMessage(
-				chat_id,
+				chatId,
 				`${userNames.join(
 					', ',
 				)} still need to complete their habits, go ahead and give them some encouragement!`,

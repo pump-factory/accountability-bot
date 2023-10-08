@@ -1,9 +1,5 @@
 import { Client } from 'pg'
-import {
-	createUser,
-	createUsersChats,
-	ICreateUserResult,
-} from './users.queries'
+import { createUser, ICreateUserResult } from './users.queries'
 
 export async function createUserAndUsersChats(
 	name: string,
@@ -14,15 +10,8 @@ export async function createUserAndUsersChats(
 	const result = await createUser.run(
 		{
 			name,
-			telegram_id: telegramId,
-		},
-		client,
-	)
-
-	await createUsersChats.run(
-		{
-			user_id: telegramId,
-			chat_id: chatId,
+			chatId: chatId,
+			telegramId: telegramId,
 		},
 		client,
 	)

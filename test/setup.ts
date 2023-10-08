@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { client } from '../db'
+import { client } from '../src/db'
 import path from 'path'
 
 // TODO: Github actions must be configured to create the database before this runs

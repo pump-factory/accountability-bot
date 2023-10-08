@@ -1,13 +1,13 @@
 {
-	"transforms": [
-		{
-			"mode": "sql",
-			"include": "**/*.sql",
-			"emitTemplate": "{{dir}}/{{name}}.queries.ts"
-		}
-	],
-	"srcDir": "./src/",
-	"failOnError": false,
-	"camelCaseColumnNames": false,
-	"dbUrl": "postgres://accountability-bot:password@localhost:5432/accountability-bot"
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
+    }
+  ],
+  "srcDir": "./src/",
+  "failOnError": true,
+  "camelCaseColumnNames": false,
+  "dbUrl": "postgres://harrison@localhost:5432/serenity"
 }

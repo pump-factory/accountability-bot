@@ -1,41 +1,54 @@
 /* @name FindHabitsByChatId */
-select *
-from habits
-where chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "HabitChat"."chatId" = :chatId;
 
 /* @name FindHabit */
-select *
-from habits
-where id = :id
-  and chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "Habit".id = :habitId
+  and "chatId" = :chatId;
 
 /* @name findHabitByTitle */
-select *
-from habits
-where title = :title
-  and chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "HabitChat"."chatId" = :chatId
+  and "Habit".title = :title;
 
 /* @name FindHabitCompletionsForUser */
-select *
-from habit_completions
-where user_id = :user_id;
+select "HabitEvent".*
+from "HabitEvent"
+where "habitFollowerId" = :userId;
 
 /* @name FindHabitCompletionsForUserToday */
-select *
-from habit_completions
-where user_id = :user_id
-  and completed_at > now() - interval '1 day';
+select "HabitEvent".*
+from "HabitEvent"
+where "habitFollowerId" = :userId
+  and "createdAt" > now() - interval '1 day';
 
 /* @name CreateHabit */
-insert into habits (title, chat_id)
-values (:title, :chat_id);
+with new_habit as (
+    insert into "Habit" (id, title, description)
+        values (uuid_generate_v4(), :title, 'telegram habit')
+        returning id)
+insert
+into "HabitChat" ("habitId", "chatId")
+    (select id, :chatId
+     from new_habit);
 
 /* @name LogHabitCompletion */
-insert into habit_completions (user_id, habit_id, completed_at)
-values (:user_id, :habit_id, now())
+insert into "HabitEvent" (id, "habitFollowerId")
+values (uuid_generate_v4(), (select id from "HabitFollower" where "userId" = :userId and "habitId" = :habitId))
 ON CONFLICT DO NOTHING;
 
 /*  @name FindHabitsGroupedByChatId */
-SELECT chat_id, json_agg(habits.*) AS habits
-FROM habits
-GROUP BY chat_id;
+SELECT "chatId", json_agg("Habit".*) AS habits
+FROM "Habit"
+         join public."HabitChat" HC on "Habit".id = HC."habitId"
+GROUP BY "chatId";
