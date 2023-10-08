@@ -10,11 +10,13 @@ import {
 	logHabitCompletion,
 } from './habits/habits.queries'
 import {
+	createHabitFollower,
+	createUser,
+	deleteUser,
 	findUserByTelegramId,
 	findUsersWithoutHabitCompletions,
 } from './users/users.queries'
 import { CustomContext } from './types'
-import { createUserAndUsersChats } from './users'
 import { client } from './db'
 
 const start = async () => {
@@ -30,24 +32,24 @@ const start = async () => {
 
 	// Register middleware to find or create user and user_chats rows
 	bot.use(async (ctx: CustomContext, next) => {
-		const userTelegramID = ctx.from.id
+		const telegramId = ctx.from.id
 
-		const results = await findUserByTelegramId.run(
-			{ telegram_id: userTelegramID },
-			client,
-		)
+		const results = await findUserByTelegramId.run({ telegramId }, client)
 		if (results.length >= 1) {
 			ctx.user = results[0]
 			return next()
 		}
 
-		ctx.user = await createUserAndUsersChats(
-			ctx.from.first_name,
-			userTelegramID,
-			ctx.chat.id,
+		await createUser.run(
+			{
+				name: ctx.from.first_name,
+				chatId: ctx.chat.id,
+				telegramId,
+			},
 			client,
 		)
-		next()
+
+		await next()
 	})
 
 	await bot.telegram.setMyCommands([
@@ -60,6 +62,34 @@ const start = async () => {
 			description: 'create a new habit',
 		},
 	])
+
+	/**
+	 * When a new user joins a chat, create a user, user_chat, and habit_follower record for each habit in the chat
+	 */
+	bot.on('new_chat_members', async (ctx) => {
+		await createUser.run(
+			{
+				name: ctx.from.first_name,
+				chatId: ctx.chat.id,
+				telegramId: ctx.from.id,
+			},
+			client,
+		)
+
+		// Find all habits in this chat
+		const habits = await findHabitsByChatId.run({ chatId: ctx.chat.id }, client)
+		for (const habit of habits) {
+			await createHabitFollower.run(
+				{ habitId: habit.id, telegramId: ctx.from.id },
+				client,
+			)
+		}
+	})
+
+	bot.on('left_chat_member', async (ctx) => {
+		// TODO: Make sure we cascade delete all relevant records when we delete a user
+		await deleteUser.run({ telegramId: ctx.from.id }, client)
+	})
 
 	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))
 
@@ -123,8 +153,8 @@ const start = async () => {
 			await logHabitCompletion.run(
 				{
 					// @ts-ignore
-					user_id: ctx.user.telegram_id,
-					habit_id: habit.id,
+					telegramId: ctx.user.telegramId,
+					habitId: habit.id,
 				},
 				client,
 			)
