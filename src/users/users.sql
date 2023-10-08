@@ -1,7 +1,7 @@
 /* @name FindUserByTelegramId */
 select *
 from "User"
-where "telegramId" = :telegram_id
+where "telegramId" = :telegramId
 limit 1;
 
 /* @name CreateUser */
@@ -15,6 +15,12 @@ into "UserChat" ("userId", "chatId")
 select id, :chatId
 from new_user;
 
+/* @name CreateHabitFollower */
+insert into "HabitFollower" (id, "userId", "habitId", "createdAt")
+select uuid_generate_v4(), id, :habitId, now()
+from "User"
+where "telegramId" = :telegramId;
+
 /* @name FindUsersWithoutHabitCompletions */
 SELECT "User".*
 FROM "User"
@@ -25,10 +31,14 @@ FROM "User"
             "HabitEvent"."createdAt" = CURRENT_DATE
     )
          LEFT JOIN "Habit" H on HF."habitId" = H.id
---LEFT JOIN habits ON habits.id = habit_completions.habit_id
 WHERE "HabitEvent".id IS NULL
   AND "UserChat"."chatId" = :chatId;
 
 /* @name FindDistinctChatIds */
 select distinct "chatId"
 from "UserChat";
+
+/* @name DeleteUser */
+delete
+from "User"
+where "telegramId" = :telegramId;

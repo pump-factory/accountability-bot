@@ -3,7 +3,7 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'FindUserByTelegramId' parameters type */
 export interface IFindUserByTelegramIdParams {
-  telegram_id?: number | string | null | void;
+  telegramId?: number | string | null | void;
 }
 
 /** 'FindUserByTelegramId' return type */
@@ -22,14 +22,14 @@ export interface IFindUserByTelegramIdQuery {
   result: IFindUserByTelegramIdResult;
 }
 
-const findUserByTelegramIdIR: any = {"usedParamSet":{"telegram_id":true},"params":[{"name":"telegram_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":53}]}],"statement":"select *\nfrom \"User\"\nwhere \"telegramId\" = :telegram_id\nlimit 1"};
+const findUserByTelegramIdIR: any = {"usedParamSet":{"telegramId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":52}]}],"statement":"select *\nfrom \"User\"\nwhere \"telegramId\" = :telegramId\nlimit 1"};
 
 /**
  * Query generated from SQL:
  * ```
  * select *
  * from "User"
- * where "telegramId" = :telegram_id
+ * where "telegramId" = :telegramId
  * limit 1
  * ```
  */
@@ -71,6 +71,35 @@ const createUserIR: any = {"usedParamSet":{"telegramId":true,"name":true,"chatId
 export const createUser = new PreparedQuery<ICreateUserParams,ICreateUserResult>(createUserIR);
 
 
+/** 'CreateHabitFollower' parameters type */
+export interface ICreateHabitFollowerParams {
+  habitId?: string | null | void;
+  telegramId?: number | string | null | void;
+}
+
+/** 'CreateHabitFollower' return type */
+export type ICreateHabitFollowerResult = void;
+
+/** 'CreateHabitFollower' query type */
+export interface ICreateHabitFollowerQuery {
+  params: ICreateHabitFollowerParams;
+  result: ICreateHabitFollowerResult;
+}
+
+const createHabitFollowerIR: any = {"usedParamSet":{"habitId":true,"telegramId":true},"params":[{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":98,"b":105}]},{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":147,"b":157}]}],"statement":"insert into \"HabitFollower\" (id, \"userId\", \"habitId\", \"createdAt\")\nselect uuid_generate_v4(), id, :habitId, now()\nfrom \"User\"\nwhere \"telegramId\" = :telegramId"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * insert into "HabitFollower" (id, "userId", "habitId", "createdAt")
+ * select uuid_generate_v4(), id, :habitId, now()
+ * from "User"
+ * where "telegramId" = :telegramId
+ * ```
+ */
+export const createHabitFollower = new PreparedQuery<ICreateHabitFollowerParams,ICreateHabitFollowerResult>(createHabitFollowerIR);
+
+
 /** 'FindUsersWithoutHabitCompletions' parameters type */
 export interface IFindUsersWithoutHabitCompletionsParams {
   chatId?: number | string | null | void;
@@ -92,7 +121,7 @@ export interface IFindUsersWithoutHabitCompletionsQuery {
   result: IFindUsersWithoutHabitCompletionsResult;
 }
 
-const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":469,"b":475}]}],"statement":"SELECT \"User\".*\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\n         JOIN \"HabitFollower\" HF on \"User\".id = HF.\"userId\"\n         LEFT JOIN \"HabitEvent\" ON (\n            \"HabitEvent\".\"habitFollowerId\" = HF.id AND\n            \"HabitEvent\".\"createdAt\" = CURRENT_DATE\n    )\n         LEFT JOIN \"Habit\" H on HF.\"habitId\" = H.id\n--LEFT JOIN habits ON habits.id = habit_completions.habit_id\nWHERE \"HabitEvent\".id IS NULL\n  AND \"UserChat\".\"chatId\" = :chatId"};
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":408,"b":414}]}],"statement":"SELECT \"User\".*\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\n         JOIN \"HabitFollower\" HF on \"User\".id = HF.\"userId\"\n         LEFT JOIN \"HabitEvent\" ON (\n            \"HabitEvent\".\"habitFollowerId\" = HF.id AND\n            \"HabitEvent\".\"createdAt\" = CURRENT_DATE\n    )\n         LEFT JOIN \"Habit\" H on HF.\"habitId\" = H.id\nWHERE \"HabitEvent\".id IS NULL\n  AND \"UserChat\".\"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
@@ -106,7 +135,6 @@ const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},
  *             "HabitEvent"."createdAt" = CURRENT_DATE
  *     )
  *          LEFT JOIN "Habit" H on HF."habitId" = H.id
- * --LEFT JOIN habits ON habits.id = habit_completions.habit_id
  * WHERE "HabitEvent".id IS NULL
  *   AND "UserChat"."chatId" = :chatId
  * ```
@@ -138,5 +166,32 @@ const findDistinctChatIdsIR: any = {"usedParamSet":{},"params":[],"statement":"s
  * ```
  */
 export const findDistinctChatIds = new PreparedQuery<IFindDistinctChatIdsParams,IFindDistinctChatIdsResult>(findDistinctChatIdsIR);
+
+
+/** 'DeleteUser' parameters type */
+export interface IDeleteUserParams {
+  telegramId?: number | string | null | void;
+}
+
+/** 'DeleteUser' return type */
+export type IDeleteUserResult = void;
+
+/** 'DeleteUser' query type */
+export interface IDeleteUserQuery {
+  params: IDeleteUserParams;
+  result: IDeleteUserResult;
+}
+
+const deleteUserIR: any = {"usedParamSet":{"telegramId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":40,"b":50}]}],"statement":"delete\nfrom \"User\"\nwhere \"telegramId\" = :telegramId"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * delete
+ * from "User"
+ * where "telegramId" = :telegramId
+ * ```
+ */
+export const deleteUser = new PreparedQuery<IDeleteUserParams,IDeleteUserResult>(deleteUserIR);
 
 
