@@ -121,18 +121,18 @@ export interface IFindUsersWithoutHabitCompletionsQuery {
   result: IFindUsersWithoutHabitCompletionsResult;
 }
 
-const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":408,"b":414}]}],"statement":"SELECT \"User\".*\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\n         JOIN \"HabitFollower\" HF on \"User\".id = HF.\"userId\"\n         LEFT JOIN \"HabitEvent\" ON (\n            \"HabitEvent\".\"habitFollowerId\" = HF.id AND\n            \"HabitEvent\".\"createdAt\" = CURRENT_DATE\n    )\n         LEFT JOIN \"Habit\" H on HF.\"habitId\" = H.id\nWHERE \"HabitEvent\".id IS NULL\n  AND \"UserChat\".\"chatId\" = :chatId"};
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":418,"b":424}]}],"statement":"SELECT DISTINCT \"User\".*\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\n         JOIN \"HabitFollower\" HF on \"User\".id = HF.\"userId\"\n         LEFT JOIN \"HabitEvent\" ON (\n            \"HabitEvent\".\"habitFollowerId\" = HF.id AND\n            \"HabitEvent\".\"createdAt\" >= CURRENT_DATE\n    )\n         LEFT JOIN \"Habit\" H on HF.\"habitId\" = H.id\nWHERE \"HabitEvent\".id IS NULL\n  AND \"UserChat\".\"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT "User".*
+ * SELECT DISTINCT "User".*
  * FROM "User"
  *          JOIN "UserChat" ON "User".id = "UserChat"."userId"
  *          JOIN "HabitFollower" HF on "User".id = HF."userId"
  *          LEFT JOIN "HabitEvent" ON (
  *             "HabitEvent"."habitFollowerId" = HF.id AND
- *             "HabitEvent"."createdAt" = CURRENT_DATE
+ *             "HabitEvent"."createdAt" >= CURRENT_DATE
  *     )
  *          LEFT JOIN "Habit" H on HF."habitId" = H.id
  * WHERE "HabitEvent".id IS NULL

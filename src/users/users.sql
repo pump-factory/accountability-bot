@@ -22,13 +22,13 @@ from "User"
 where "telegramId" = :telegramId;
 
 /* @name FindUsersWithoutHabitCompletions */
-SELECT "User".*
+SELECT DISTINCT "User".*
 FROM "User"
          JOIN "UserChat" ON "User".id = "UserChat"."userId"
          JOIN "HabitFollower" HF on "User".id = HF."userId"
          LEFT JOIN "HabitEvent" ON (
             "HabitEvent"."habitFollowerId" = HF.id AND
-            "HabitEvent"."createdAt" = CURRENT_DATE
+            "HabitEvent"."createdAt" >= CURRENT_DATE
     )
          LEFT JOIN "Habit" H on HF."habitId" = H.id
 WHERE "HabitEvent".id IS NULL
