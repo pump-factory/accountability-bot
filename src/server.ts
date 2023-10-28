@@ -12,7 +12,6 @@ import {
 import {
 	createHabitFollower,
 	createUser,
-	deleteUser,
 	findUserByTelegramId,
 	findUsersWithoutHabitCompletions,
 } from './users/users.queries'
@@ -67,22 +66,29 @@ const start = async () => {
 	 * When a new user joins a chat, create a user, user_chat, and habit_follower record for each habit in the chat
 	 */
 	bot.on('new_chat_members', async (ctx) => {
-		await createUser.run(
-			{
-				name: ctx.from.first_name,
-				chatId: ctx.chat.id,
-				telegramId: ctx.from.id,
-			},
-			client,
-		)
+		const newUsers = ctx.update.message.new_chat_members
 
-		// Find all habits in this chat
-		const habits = await findHabitsByChatId.run({ chatId: ctx.chat.id }, client)
-		for (const habit of habits) {
-			await createHabitFollower.run(
-				{ habitId: habit.id, telegramId: ctx.from.id },
+		for (const newUser of newUsers) {
+			await createUser.run(
+				{
+					name: newUser.first_name,
+					chatId: ctx.chat.id,
+					telegramId: newUser.id,
+				},
 				client,
 			)
+
+			// Find all habits in this chat
+			const habits = await findHabitsByChatId.run(
+				{ chatId: ctx.chat.id },
+				client,
+			)
+			for (const habit of habits) {
+				await createHabitFollower.run(
+					{ habitId: habit.id, telegramId: newUser.id },
+					client,
+				)
+			}
 		}
 	})
 
