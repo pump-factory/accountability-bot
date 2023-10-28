@@ -3,15 +3,17 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'FindUserByTelegramId' parameters type */
 export interface IFindUserByTelegramIdParams {
-  telegram_id?: number | string | null | void;
+  telegramId?: number | string | null | void;
 }
 
 /** 'FindUserByTelegramId' return type */
 export interface IFindUserByTelegramIdResult {
-  created_at: Date;
+  createdAt: Date;
+  email: string;
+  id: string;
   name: string;
-  telegram_id: string;
-  updated_at: Date;
+  telegramId: string | null;
+  updatedAt: Date;
 }
 
 /** 'FindUserByTelegramId' query type */
@@ -20,14 +22,14 @@ export interface IFindUserByTelegramIdQuery {
   result: IFindUserByTelegramIdResult;
 }
 
-const findUserByTelegramIdIR: any = {"usedParamSet":{"telegram_id":true},"params":[{"name":"telegram_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":40,"b":51}]}],"statement":"select *\nfrom users\nwhere telegram_id = :telegram_id\nlimit 1"};
+const findUserByTelegramIdIR: any = {"usedParamSet":{"telegramId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":42,"b":52}]}],"statement":"select *\nfrom \"User\"\nwhere \"telegramId\" = :telegramId\nlimit 1"};
 
 /**
  * Query generated from SQL:
  * ```
  * select *
- * from users
- * where telegram_id = :telegram_id
+ * from "User"
+ * where "telegramId" = :telegramId
  * limit 1
  * ```
  */
@@ -36,17 +38,13 @@ export const findUserByTelegramId = new PreparedQuery<IFindUserByTelegramIdParam
 
 /** 'CreateUser' parameters type */
 export interface ICreateUserParams {
+  chatId?: number | string | null | void;
   name?: string | null | void;
-  telegram_id?: number | string | null | void;
+  telegramId?: number | string | null | void;
 }
 
 /** 'CreateUser' return type */
-export interface ICreateUserResult {
-  created_at: Date;
-  name: string;
-  telegram_id: string;
-  updated_at: Date;
-}
+export type ICreateUserResult = void;
 
 /** 'CreateUser' query type */
 export interface ICreateUserQuery {
@@ -54,30 +52,67 @@ export interface ICreateUserQuery {
   result: ICreateUserResult;
 }
 
-const createUserIR: any = {"usedParamSet":{"telegram_id":true,"name":true},"params":[{"name":"telegram_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":60,"b":64}]}],"statement":"insert into users (telegram_id, name)\nvalues (:telegram_id, :name)\nreturning *"};
+const createUserIR: any = {"usedParamSet":{"telegramId":true,"name":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":140,"b":150}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":153,"b":157}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":317,"b":323}]}],"statement":"with new_user as (\n    insert into \"User\" (id, \"telegramId\", \"name\", \"createdAt\", \"updatedAt\", \"email\")\n        values (uuid_generate_v4(), :telegramId, :name, now(), now(),\n                uuid_generate_v4()::text || '@example.com'::text)\n        returning id)\ninsert\ninto \"UserChat\" (\"userId\", \"chatId\")\nselect id, :chatId\nfrom new_user"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into users (telegram_id, name)
- * values (:telegram_id, :name)
- * returning *
+ * with new_user as (
+ *     insert into "User" (id, "telegramId", "name", "createdAt", "updatedAt", "email")
+ *         values (uuid_generate_v4(), :telegramId, :name, now(), now(),
+ *                 uuid_generate_v4()::text || '@example.com'::text)
+ *         returning id)
+ * insert
+ * into "UserChat" ("userId", "chatId")
+ * select id, :chatId
+ * from new_user
  * ```
  */
 export const createUser = new PreparedQuery<ICreateUserParams,ICreateUserResult>(createUserIR);
 
 
+/** 'CreateHabitFollower' parameters type */
+export interface ICreateHabitFollowerParams {
+  habitId?: string | null | void;
+  telegramId?: number | string | null | void;
+}
+
+/** 'CreateHabitFollower' return type */
+export type ICreateHabitFollowerResult = void;
+
+/** 'CreateHabitFollower' query type */
+export interface ICreateHabitFollowerQuery {
+  params: ICreateHabitFollowerParams;
+  result: ICreateHabitFollowerResult;
+}
+
+const createHabitFollowerIR: any = {"usedParamSet":{"habitId":true,"telegramId":true},"params":[{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":98,"b":105}]},{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":147,"b":157}]}],"statement":"insert into \"HabitFollower\" (id, \"userId\", \"habitId\", \"createdAt\")\nselect uuid_generate_v4(), id, :habitId, now()\nfrom \"User\"\nwhere \"telegramId\" = :telegramId"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * insert into "HabitFollower" (id, "userId", "habitId", "createdAt")
+ * select uuid_generate_v4(), id, :habitId, now()
+ * from "User"
+ * where "telegramId" = :telegramId
+ * ```
+ */
+export const createHabitFollower = new PreparedQuery<ICreateHabitFollowerParams,ICreateHabitFollowerResult>(createHabitFollowerIR);
+
+
 /** 'FindUsersWithoutHabitCompletions' parameters type */
 export interface IFindUsersWithoutHabitCompletionsParams {
-  chat_id?: number | string | null | void;
+  chatId?: number | string | null | void;
 }
 
 /** 'FindUsersWithoutHabitCompletions' return type */
 export interface IFindUsersWithoutHabitCompletionsResult {
-  created_at: Date;
+  createdAt: Date;
+  email: string;
+  id: string;
   name: string;
-  telegram_id: string;
-  updated_at: Date;
+  telegramId: string | null;
+  updatedAt: Date;
 }
 
 /** 'FindUsersWithoutHabitCompletions' query type */
@@ -86,21 +121,22 @@ export interface IFindUsersWithoutHabitCompletionsQuery {
   result: IFindUsersWithoutHabitCompletionsResult;
 }
 
-const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chat_id":true},"params":[{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":399,"b":406}]}],"statement":"SELECT users.*\nFROM users\n         JOIN users_chats ON users.telegram_id = users_chats.user_id\n         LEFT JOIN habit_completions ON (\n            habit_completions.user_id = users.telegram_id AND\n            habit_completions.completed_at = CURRENT_DATE\n    )\n         LEFT JOIN habits ON habits.id = habit_completions.habit_id\nWHERE habit_completions.user_id IS NULL\n  AND users_chats.chat_id = :chat_id"};
+const findUsersWithoutHabitCompletionsIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":418,"b":424}]}],"statement":"SELECT DISTINCT \"User\".*\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\n         JOIN \"HabitFollower\" HF on \"User\".id = HF.\"userId\"\n         LEFT JOIN \"HabitEvent\" ON (\n            \"HabitEvent\".\"habitFollowerId\" = HF.id AND\n            \"HabitEvent\".\"createdAt\" >= CURRENT_DATE\n    )\n         LEFT JOIN \"Habit\" H on HF.\"habitId\" = H.id\nWHERE \"HabitEvent\".id IS NULL\n  AND \"UserChat\".\"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT users.*
- * FROM users
- *          JOIN users_chats ON users.telegram_id = users_chats.user_id
- *          LEFT JOIN habit_completions ON (
- *             habit_completions.user_id = users.telegram_id AND
- *             habit_completions.completed_at = CURRENT_DATE
+ * SELECT DISTINCT "User".*
+ * FROM "User"
+ *          JOIN "UserChat" ON "User".id = "UserChat"."userId"
+ *          JOIN "HabitFollower" HF on "User".id = HF."userId"
+ *          LEFT JOIN "HabitEvent" ON (
+ *             "HabitEvent"."habitFollowerId" = HF.id AND
+ *             "HabitEvent"."createdAt" >= CURRENT_DATE
  *     )
- *          LEFT JOIN habits ON habits.id = habit_completions.habit_id
- * WHERE habit_completions.user_id IS NULL
- *   AND users_chats.chat_id = :chat_id
+ *          LEFT JOIN "Habit" H on HF."habitId" = H.id
+ * WHERE "HabitEvent".id IS NULL
+ *   AND "UserChat"."chatId" = :chatId
  * ```
  */
 export const findUsersWithoutHabitCompletions = new PreparedQuery<IFindUsersWithoutHabitCompletionsParams,IFindUsersWithoutHabitCompletionsResult>(findUsersWithoutHabitCompletionsIR);
@@ -111,7 +147,7 @@ export type IFindDistinctChatIdsParams = void;
 
 /** 'FindDistinctChatIds' return type */
 export interface IFindDistinctChatIdsResult {
-  chat_id: string;
+  chatId: string;
 }
 
 /** 'FindDistinctChatIds' query type */
@@ -120,43 +156,42 @@ export interface IFindDistinctChatIdsQuery {
   result: IFindDistinctChatIdsResult;
 }
 
-const findDistinctChatIdsIR: any = {"usedParamSet":{},"params":[],"statement":"select distinct chat_id\nfrom users_chats"};
+const findDistinctChatIdsIR: any = {"usedParamSet":{},"params":[],"statement":"select distinct \"chatId\"\nfrom \"UserChat\""};
 
 /**
  * Query generated from SQL:
  * ```
- * select distinct chat_id
- * from users_chats
+ * select distinct "chatId"
+ * from "UserChat"
  * ```
  */
 export const findDistinctChatIds = new PreparedQuery<IFindDistinctChatIdsParams,IFindDistinctChatIdsResult>(findDistinctChatIdsIR);
 
 
-/** 'CreateUsersChats' parameters type */
-export interface ICreateUsersChatsParams {
-  chat_id?: number | string | null | void;
-  user_id?: number | string | null | void;
+/** 'DeleteUser' parameters type */
+export interface IDeleteUserParams {
+  telegramId?: number | string | null | void;
 }
 
-/** 'CreateUsersChats' return type */
-export type ICreateUsersChatsResult = void;
+/** 'DeleteUser' return type */
+export type IDeleteUserResult = void;
 
-/** 'CreateUsersChats' query type */
-export interface ICreateUsersChatsQuery {
-  params: ICreateUsersChatsParams;
-  result: ICreateUsersChatsResult;
+/** 'DeleteUser' query type */
+export interface IDeleteUserQuery {
+  params: IDeleteUserParams;
+  result: IDeleteUserResult;
 }
 
-const createUsersChatsIR: any = {"usedParamSet":{"user_id":true,"chat_id":true},"params":[{"name":"user_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":58}]},{"name":"chat_id","required":false,"transform":{"type":"scalar"},"locs":[{"a":61,"b":68}]}],"statement":"insert into users_chats (user_id, chat_id)\nvalues (:user_id, :chat_id)\non conflict do nothing"};
+const deleteUserIR: any = {"usedParamSet":{"telegramId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":40,"b":50}]}],"statement":"delete\nfrom \"User\"\nwhere \"telegramId\" = :telegramId"};
 
 /**
  * Query generated from SQL:
  * ```
- * insert into users_chats (user_id, chat_id)
- * values (:user_id, :chat_id)
- * on conflict do nothing
+ * delete
+ * from "User"
+ * where "telegramId" = :telegramId
  * ```
  */
-export const createUsersChats = new PreparedQuery<ICreateUsersChatsParams,ICreateUsersChatsResult>(createUsersChatsIR);
+export const deleteUser = new PreparedQuery<IDeleteUserParams,IDeleteUserResult>(deleteUserIR);
 
 

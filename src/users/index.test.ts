@@ -12,7 +12,7 @@ afterAll(async () => {
 
 test('find users without habit completions', async () => {
 	const result = await findUsersWithoutHabitCompletions.run(
-		{ chat_id: -1000 },
+		{ chatId: -1000 },
 		client,
 	)
 

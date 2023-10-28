@@ -3,6 +3,8 @@ import { Markup, Telegraf } from 'telegraf'
 import cron from 'node-cron'
 import {
 	createHabit,
+	deleteHabitFollowersForUserAndChat,
+	deleteUserChat,
 	findHabit,
 	findHabitByTitle,
 	findHabitsByChatId,
@@ -10,11 +12,13 @@ import {
 	logHabitCompletion,
 } from './habits/habits.queries'
 import {
+	createHabitFollower,
+	createUser,
+	deleteUser,
 	findUserByTelegramId,
 	findUsersWithoutHabitCompletions,
 } from './users/users.queries'
 import { CustomContext } from './types'
-import { createUserAndUsersChats } from './users'
 import { client } from './db'
 
 const start = async () => {
@@ -30,24 +34,24 @@ const start = async () => {
 
 	// Register middleware to find or create user and user_chats rows
 	bot.use(async (ctx: CustomContext, next) => {
-		const userTelegramID = ctx.from.id
+		const telegramId = ctx.from.id
 
-		const results = await findUserByTelegramId.run(
-			{ telegram_id: userTelegramID },
-			client,
-		)
+		const results = await findUserByTelegramId.run({ telegramId }, client)
 		if (results.length >= 1) {
 			ctx.user = results[0]
 			return next()
 		}
 
-		ctx.user = await createUserAndUsersChats(
-			ctx.from.first_name,
-			userTelegramID,
-			ctx.chat.id,
+		await createUser.run(
+			{
+				name: ctx.from.first_name,
+				chatId: ctx.chat.id,
+				telegramId,
+			},
 			client,
 		)
-		next()
+
+		await next()
 	})
 
 	await bot.telegram.setMyCommands([
@@ -61,6 +65,49 @@ const start = async () => {
 		},
 	])
 
+	/**
+	 * When a new user joins a chat, create a user, user_chat, and habit_follower record for each habit in the chat
+	 */
+	bot.on('new_chat_members', async (ctx) => {
+		const newUsers = ctx.update.message.new_chat_members
+
+		for (const newUser of newUsers) {
+			await createUser.run(
+				{
+					name: newUser.first_name,
+					chatId: ctx.chat.id,
+					telegramId: newUser.id,
+				},
+				client,
+			)
+
+			// Find all habits in this chat
+			const habits = await findHabitsByChatId.run(
+				{ chatId: ctx.chat.id },
+				client,
+			)
+			for (const habit of habits) {
+				await createHabitFollower.run(
+					{ habitId: habit.id, telegramId: newUser.id },
+					client,
+				)
+			}
+		}
+	})
+
+	bot.on('left_chat_member', async (ctx) => {
+		const leftUser = ctx.update.message.left_chat_member
+		await deleteHabitFollowersForUserAndChat.run(
+			{ telegramId: leftUser.id, chatId: ctx.chat.id },
+			client,
+		)
+
+		await deleteUserChat.run(
+			{ telegramId: leftUser.id, chatId: ctx.chat.id },
+			client,
+		)
+	})
+
 	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))
 
 	bot.help((ctx) => ctx.reply('Implement me daddy!'))
@@ -72,7 +119,7 @@ const start = async () => {
 		}
 
 		const results = await findHabitByTitle.run(
-			{ title: ctx.payload, chat_id: ctx.chat.id },
+			{ title: ctx.payload, chatId: ctx.chat.id },
 			client,
 		)
 		if (results.length > 0) {
@@ -81,10 +128,7 @@ const start = async () => {
 		}
 
 		try {
-			await createHabit.run(
-				{ title: ctx.payload, chat_id: ctx.chat.id },
-				client,
-			)
+			await createHabit.run({ title: ctx.payload, chatId: ctx.chat.id }, client)
 		} catch (err) {
 			ctx.reply('error creating habit. please try again')
 			return
@@ -94,10 +138,7 @@ const start = async () => {
 	})
 
 	bot.command('log', async (ctx) => {
-		const habits = await findHabitsByChatId.run(
-			{ chat_id: ctx.chat.id },
-			client,
-		)
+		const habits = await findHabitsByChatId.run({ chatId: ctx.chat.id }, client)
 		ctx.reply(
 			'Which habit do you want to complete?',
 			Markup.inlineKeyboard(
@@ -114,9 +155,9 @@ const start = async () => {
 			ctx.reply('error logging habit completion. please try again')
 			return
 		}
-		const habitId = parseInt(ctx.match[0])
+		const habitId = ctx.match[0]
 		const results = await findHabit.run(
-			{ id: habitId, chat_id: ctx.chat.id },
+			{ habitId, chatId: ctx.chat.id },
 			client,
 		)
 		if (results.length === 0) {
@@ -129,8 +170,8 @@ const start = async () => {
 			await logHabitCompletion.run(
 				{
 					// @ts-ignore
-					user_id: ctx.user.telegram_id,
-					habit_id: habit.id,
+					telegramId: ctx.user.telegramId,
+					habitId: habit.id,
 				},
 				client,
 			)
@@ -149,12 +190,12 @@ const start = async () => {
 			return
 		}
 
-		for (const { chat_id, habits: habitJson } of results) {
+		for (const { chatId, habits: habitJson } of results) {
 			const habits = habitJson as { title: string; id: number }[]
 			const habitStr = habits.map((habit) => habit.title).join(', ')
 
 			await bot.telegram.sendMessage(
-				chat_id,
+				chatId,
 				"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
 			)
 		}
@@ -175,16 +216,16 @@ const start = async () => {
 		}
 
 		// For each chat ID, find users without a habit completion for each habit
-		for (const { chat_id } of chatIdResults) {
+		for (const { chatId } of chatIdResults) {
 			const usersWithoutCompletion = await findUsersWithoutHabitCompletions.run(
-				{ chat_id },
+				{ chatId },
 				client,
 			)
 
 			// If everyone completed their habit, send congratulations
 			if (usersWithoutCompletion.length === 0) {
 				await bot.telegram.sendMessage(
-					chat_id,
+					chatId,
 					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
 				)
 				continue
@@ -193,7 +234,7 @@ const start = async () => {
 			// Remind any users who haven't completed their habit to do so
 			const userNames = usersWithoutCompletion.map((user) => user.name)
 			await bot.telegram.sendMessage(
-				chat_id,
+				chatId,
 				`${userNames.join(
 					', ',
 				)} still need to complete their habits, go ahead and give them some encouragement!`,

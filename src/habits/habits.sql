@@ -1,41 +1,75 @@
 /* @name FindHabitsByChatId */
-select *
-from habits
-where chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "HabitChat"."chatId" = :chatId;
 
 /* @name FindHabit */
-select *
-from habits
-where id = :id
-  and chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "Habit".id = :habitId
+  and "chatId" = :chatId;
 
 /* @name findHabitByTitle */
-select *
-from habits
-where title = :title
-  and chat_id = :chat_id;
+select "Habit".*
+from "Habit"
+         join "HabitChat"
+              on "Habit".id = "HabitChat"."habitId"
+where "HabitChat"."chatId" = :chatId
+  and "Habit".title = :title;
 
 /* @name FindHabitCompletionsForUser */
-select *
-from habit_completions
-where user_id = :user_id;
+select "HabitEvent".*
+from "HabitEvent"
+where "habitFollowerId" = :userId;
 
 /* @name FindHabitCompletionsForUserToday */
-select *
-from habit_completions
-where user_id = :user_id
-  and completed_at > now() - interval '1 day';
+select "HabitEvent".*
+from "HabitEvent"
+where "habitFollowerId" = :userId
+  and "createdAt" > now() - interval '1 day';
 
 /* @name CreateHabit */
-insert into habits (title, chat_id)
-values (:title, :chat_id);
+WITH new_habit AS (
+    INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
+        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
+        RETURNING id),
+     new_habit_chat AS (
+         INSERT INTO "HabitChat" ("habitId", "chatId")
+             SELECT id, :chatId
+             FROM new_habit)
+INSERT
+INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
+SELECT uuid_generate_v4(), nh.id, uc."userId", now()
+FROM new_habit nh
+         CROSS JOIN "UserChat" uc
+WHERE uc."chatId" = :chatId;
+
 
 /* @name LogHabitCompletion */
-insert into habit_completions (user_id, habit_id, completed_at)
-values (:user_id, :habit_id, now())
+insert
+into "HabitEvent" (id, "habitFollowerId")
+values (uuid_generate_v4(), (select id
+                             from "HabitFollower"
+                             where "userId" = (select id from "User" where "telegramId" = :telegramId)
+                               and "habitId" = :habitId))
 ON CONFLICT DO NOTHING;
 
 /*  @name FindHabitsGroupedByChatId */
-SELECT chat_id, json_agg(habits.*) AS habits
-FROM habits
-GROUP BY chat_id;
+SELECT "chatId", json_agg("Habit".*) AS habits
+FROM "Habit"
+         join public."HabitChat" HC on "Habit".id = HC."habitId"
+GROUP BY "chatId";
+
+/* @name deleteHabitFollowersForUserAndChat */
+DELETE FROM "HabitFollower"
+WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+  AND "habitId" in (select "habitId" from "HabitChat" where "chatId" = :chatId);
+
+/* @name deleteUserChat */
+DELETE FROM "UserChat"
+WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+  AND "chatId" = :chatId;
