@@ -63,3 +63,13 @@ SELECT "chatId", json_agg("Habit".*) AS habits
 FROM "Habit"
          join public."HabitChat" HC on "Habit".id = HC."habitId"
 GROUP BY "chatId";
+
+/* @name deleteHabitFollowersForUserAndChat */
+DELETE FROM "HabitFollower"
+WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+  AND "habitId" in (select "habitId" from "HabitChat" where "chatId" = :chatId);
+
+/* @name deleteUserChat */
+DELETE FROM "UserChat"
+WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+  AND "chatId" = :chatId;

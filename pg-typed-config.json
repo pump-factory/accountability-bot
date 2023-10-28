@@ -9,5 +9,5 @@
   "srcDir": "./src/",
   "failOnError": true,
   "camelCaseColumnNames": false,
-  "dbUrl": "postgres://harrison@localhost:5432/serenity"
+  "dbUrl": "postgresql://jetbrains:a@localhost/serenity?host=/var/run/postgresql"
 }

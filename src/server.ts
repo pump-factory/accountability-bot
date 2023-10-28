@@ -3,6 +3,8 @@ import { Markup, Telegraf } from 'telegraf'
 import cron from 'node-cron'
 import {
 	createHabit,
+	deleteHabitFollowersForUserAndChat,
+	deleteUserChat,
 	findHabit,
 	findHabitByTitle,
 	findHabitsByChatId,
@@ -12,6 +14,7 @@ import {
 import {
 	createHabitFollower,
 	createUser,
+	deleteUser,
 	findUserByTelegramId,
 	findUsersWithoutHabitCompletions,
 } from './users/users.queries'
@@ -93,8 +96,16 @@ const start = async () => {
 	})
 
 	bot.on('left_chat_member', async (ctx) => {
-		// TODO: Make sure we cascade delete all relevant records when we delete a user
-		await deleteUser.run({ telegramId: ctx.from.id }, client)
+		const leftUser = ctx.update.message.left_chat_member
+		await deleteHabitFollowersForUserAndChat.run(
+			{ telegramId: leftUser.id, chatId: ctx.chat.id },
+			client,
+		)
+
+		await deleteUserChat.run(
+			{ telegramId: leftUser.id, chatId: ctx.chat.id },
+			client,
+		)
 	})
 
 	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))

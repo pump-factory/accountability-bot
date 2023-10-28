@@ -285,3 +285,59 @@ const findHabitsGroupedByChatIdIR: any = {"usedParamSet":{},"params":[],"stateme
 export const findHabitsGroupedByChatId = new PreparedQuery<IFindHabitsGroupedByChatIdParams,IFindHabitsGroupedByChatIdResult>(findHabitsGroupedByChatIdIR);
 
 
+/** 'DeleteHabitFollowersForUserAndChat' parameters type */
+export interface IDeleteHabitFollowersForUserAndChatParams {
+  chatId?: number | string | null | void;
+  telegramId?: number | string | null | void;
+}
+
+/** 'DeleteHabitFollowersForUserAndChat' return type */
+export type IDeleteHabitFollowersForUserAndChatResult = void;
+
+/** 'DeleteHabitFollowersForUserAndChat' query type */
+export interface IDeleteHabitFollowersForUserAndChatQuery {
+  params: IDeleteHabitFollowersForUserAndChatParams;
+  result: IDeleteHabitFollowersForUserAndChatResult;
+}
+
+const deleteHabitFollowersForUserAndChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":89,"b":99}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":173,"b":179}]}],"statement":"DELETE FROM \"HabitFollower\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"habitId\" in (select \"habitId\" from \"HabitChat\" where \"chatId\" = :chatId)"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * DELETE FROM "HabitFollower"
+ * WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+ *   AND "habitId" in (select "habitId" from "HabitChat" where "chatId" = :chatId)
+ * ```
+ */
+export const deleteHabitFollowersForUserAndChat = new PreparedQuery<IDeleteHabitFollowersForUserAndChatParams,IDeleteHabitFollowersForUserAndChatResult>(deleteHabitFollowersForUserAndChatIR);
+
+
+/** 'DeleteUserChat' parameters type */
+export interface IDeleteUserChatParams {
+  chatId?: number | string | null | void;
+  telegramId?: number | string | null | void;
+}
+
+/** 'DeleteUserChat' return type */
+export type IDeleteUserChatResult = void;
+
+/** 'DeleteUserChat' query type */
+export interface IDeleteUserChatQuery {
+  params: IDeleteUserChatParams;
+  result: IDeleteUserChatResult;
+}
+
+const deleteUserChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":84,"b":94}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":114,"b":120}]}],"statement":"DELETE FROM \"UserChat\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"chatId\" = :chatId"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * DELETE FROM "UserChat"
+ * WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
+ *   AND "chatId" = :chatId
+ * ```
+ */
+export const deleteUserChat = new PreparedQuery<IDeleteUserChatParams,IDeleteUserChatResult>(deleteUserChatIR);
+
+
