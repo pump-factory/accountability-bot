@@ -1,13 +1,13 @@
 {
-  "transforms": [
-    {
-      "mode": "sql",
-      "include": "**/*.sql",
-      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
-    }
-  ],
-  "srcDir": "./src/",
-  "failOnError": true,
-  "camelCaseColumnNames": false,
-  "dbUrl": "postgresql://jetbrains:a@localhost/serenity?host=/var/run/postgresql"
+	"transforms": [
+		{
+			"mode": "sql",
+			"include": "**/*.sql",
+			"emitTemplate": "{{dir}}/{{name}}.queries.ts"
+		}
+	],
+	"srcDir": "./src/",
+	"failOnError": true,
+	"camelCaseColumnNames": false,
+	"dbUrl": "postgresql://postgres:postgres@localhost:54322/postgres"
 }
