@@ -48,14 +48,17 @@ FROM new_habit nh
          CROSS JOIN "UserChat" uc
 WHERE uc."chatId" = :chatId;
 
-
 /* @name LogHabitCompletion */
+with cur_user as (select *
+                  from "User"
+                  where "telegramId" = :telegramId
+                  LIMIT 1)
 insert
-into "HabitEvent" (id, "habitFollowerId")
+into "HabitEvent" (id, "habitFollowerId", "loggedAtUserTz")
 values (uuid_generate_v4(), (select id
                              from "HabitFollower"
-                             where "userId" = (select id from "User" where "telegramId" = :telegramId)
-                               and "habitId" = :habitId))
+                             where "userId" = (select id from cur_user)
+                               and "habitId" = :habitId), now() AT TIME ZONE (select timezone from cur_user))
 ON CONFLICT DO NOTHING;
 
 /*  @name FindHabitsGroupedByChatId */
@@ -65,11 +68,13 @@ FROM "Habit"
 GROUP BY "chatId";
 
 /* @name deleteHabitFollowersForUserAndChat */
-DELETE FROM "HabitFollower"
+DELETE
+FROM "HabitFollower"
 WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
   AND "habitId" in (select "habitId" from "HabitChat" where "chatId" = :chatId);
 
 /* @name deleteUserChat */
-DELETE FROM "UserChat"
+DELETE
+FROM "UserChat"
 WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
   AND "chatId" = :chatId;

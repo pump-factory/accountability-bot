@@ -132,6 +132,7 @@ export interface IFindHabitCompletionsForUserResult {
   createdAt: Date;
   habitFollowerId: string;
   id: string;
+  loggedAtUserTz: Date | null;
 }
 
 /** 'FindHabitCompletionsForUser' query type */
@@ -163,6 +164,7 @@ export interface IFindHabitCompletionsForUserTodayResult {
   createdAt: Date;
   habitFollowerId: string;
   id: string;
+  loggedAtUserTz: Date | null;
 }
 
 /** 'FindHabitCompletionsForUserToday' query type */
@@ -239,17 +241,21 @@ export interface ILogHabitCompletionQuery {
   result: ILogHabitCompletionResult;
 }
 
-const logHabitCompletionIR: any = {"usedParamSet":{"telegramId":true,"habitId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":228,"b":238}]},{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":288,"b":295}]}],"statement":"insert\ninto \"HabitEvent\" (id, \"habitFollowerId\")\nvalues (uuid_generate_v4(), (select id\n                             from \"HabitFollower\"\n                             where \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n                               and \"habitId\" = :habitId))\nON CONFLICT DO NOTHING"};
+const logHabitCompletionIR: any = {"usedParamSet":{"telegramId":true,"habitId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":96,"b":106}]},{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":410,"b":417}]}],"statement":"with cur_user as (select *\n                  from \"User\"\n                  where \"telegramId\" = :telegramId\n                  LIMIT 1)\ninsert\ninto \"HabitEvent\" (id, \"habitFollowerId\", \"loggedAtUserTz\")\nvalues (uuid_generate_v4(), (select id\n                             from \"HabitFollower\"\n                             where \"userId\" = (select id from cur_user)\n                               and \"habitId\" = :habitId), now() AT TIME ZONE (select timezone from cur_user))\nON CONFLICT DO NOTHING"};
 
 /**
  * Query generated from SQL:
  * ```
+ * with cur_user as (select *
+ *                   from "User"
+ *                   where "telegramId" = :telegramId
+ *                   LIMIT 1)
  * insert
- * into "HabitEvent" (id, "habitFollowerId")
+ * into "HabitEvent" (id, "habitFollowerId", "loggedAtUserTz")
  * values (uuid_generate_v4(), (select id
  *                              from "HabitFollower"
- *                              where "userId" = (select id from "User" where "telegramId" = :telegramId)
- *                                and "habitId" = :habitId))
+ *                              where "userId" = (select id from cur_user)
+ *                                and "habitId" = :habitId), now() AT TIME ZONE (select timezone from cur_user))
  * ON CONFLICT DO NOTHING
  * ```
  */
@@ -300,12 +306,13 @@ export interface IDeleteHabitFollowersForUserAndChatQuery {
   result: IDeleteHabitFollowersForUserAndChatResult;
 }
 
-const deleteHabitFollowersForUserAndChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":89,"b":99}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":173,"b":179}]}],"statement":"DELETE FROM \"HabitFollower\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"habitId\" in (select \"habitId\" from \"HabitChat\" where \"chatId\" = :chatId)"};
+const deleteHabitFollowersForUserAndChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":89,"b":99}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":173,"b":179}]}],"statement":"DELETE\nFROM \"HabitFollower\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"habitId\" in (select \"habitId\" from \"HabitChat\" where \"chatId\" = :chatId)"};
 
 /**
  * Query generated from SQL:
  * ```
- * DELETE FROM "HabitFollower"
+ * DELETE
+ * FROM "HabitFollower"
  * WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
  *   AND "habitId" in (select "habitId" from "HabitChat" where "chatId" = :chatId)
  * ```
@@ -328,12 +335,13 @@ export interface IDeleteUserChatQuery {
   result: IDeleteUserChatResult;
 }
 
-const deleteUserChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":84,"b":94}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":114,"b":120}]}],"statement":"DELETE FROM \"UserChat\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"chatId\" = :chatId"};
+const deleteUserChatIR: any = {"usedParamSet":{"telegramId":true,"chatId":true},"params":[{"name":"telegramId","required":false,"transform":{"type":"scalar"},"locs":[{"a":84,"b":94}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":114,"b":120}]}],"statement":"DELETE\nFROM \"UserChat\"\nWHERE \"userId\" = (select id from \"User\" where \"telegramId\" = :telegramId)\n  AND \"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
  * ```
- * DELETE FROM "UserChat"
+ * DELETE
+ * FROM "UserChat"
  * WHERE "userId" = (select id from "User" where "telegramId" = :telegramId)
  *   AND "chatId" = :chatId
  * ```
