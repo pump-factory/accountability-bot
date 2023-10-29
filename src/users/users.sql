@@ -28,7 +28,7 @@ FROM "User"
          JOIN "HabitFollower" HF on "User".id = HF."userId"
          LEFT JOIN "HabitEvent" ON (
             "HabitEvent"."habitFollowerId" = HF.id AND
-            "HabitEvent"."createdAt" >= CURRENT_DATE
+            "HabitEvent"."createdAt" AT TIME ZONE "User"."timezone" >= (CURRENT_DATE AT TIME ZONE "User"."timezone")
     )
          LEFT JOIN "Habit" H on HF."habitId" = H.id
 WHERE "HabitEvent".id IS NULL
