@@ -1,8 +1,22 @@
 import cron from 'node-cron'
-import { findHabitsGroupedByChatId } from './habits/habits.queries'
+import {
+	findHabitsByChatId,
+	findHabitsGroupedByChatId,
+} from './habits/habits.queries'
 import { client } from './db'
 import { bot } from './bot'
-import { findUsersWithoutHabitCompletions } from './users/users.queries'
+import {
+	findUsersInChat,
+	findUsersWithoutHabitCompletions,
+} from './users/users.queries'
+import {
+	buildEveningChatRequest,
+	buildMorningChatRequest,
+	generateChatMessage,
+} from './openai'
+import { ChatCompletionMessageParam } from 'openai/resources'
+
+const defaultMorningMessage = `Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters`
 
 export async function sendMorningReminder() {
 	const results = await findHabitsGroupedByChatId.run(undefined, client)
@@ -12,12 +26,23 @@ export async function sendMorningReminder() {
 
 	for (const { chatId, habits: habitJson } of results) {
 		const habits = habitJson as { title: string; id: number }[]
-		const habitStr = habits.map((habit) => habit.title).join(', ')
+		const users = await findUsersInChat.run({ chatId }, client)
 
-		await bot.telegram.sendMessage(
-			chatId,
-			"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
+		const userMessage: ChatCompletionMessageParam = buildMorningChatRequest(
+			users,
+			habits,
 		)
+
+		let chatMessage = defaultMorningMessage
+		if (process.env.ENABLE_AI_MESSAGES === 'true') {
+			try {
+				chatMessage = await generateChatMessage([userMessage])
+			} catch (error) {
+				console.error('Failed to generate chat message', error)
+			}
+		}
+
+		await bot.telegram.sendMessage(chatId, chatMessage)
 	}
 }
 
@@ -40,23 +65,35 @@ export async function sendEveningReminder() {
 			client,
 		)
 
-		// If everyone completed their habit, send congratulations
-		if (usersWithoutCompletion.length === 0) {
-			await bot.telegram.sendMessage(
-				chatId,
-				"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
-			)
+		const habits = await findHabitsByChatId.run({ chatId }, client)
+		if (habits.length === 0) {
 			continue
 		}
 
-		// Remind any users who haven't completed their habit to do so
-		const userNames = usersWithoutCompletion.map((user) => user.name)
-		await bot.telegram.sendMessage(
-			chatId,
-			`${userNames.join(
-				', ',
-			)} still need to complete their habits, go ahead and give them some encouragement!`,
-		)
+		// Build default message
+		let chatMessage: string =
+			usersWithoutCompletion.length === 0
+				? `Congrats everyone!  You've all rocked your habits today🎉`
+				: `${usersWithoutCompletion
+						.map((user) => user.name)
+						.join(
+							', ',
+						)} still need to complete their habits. Give them some encouragement.`
+
+		if (process.env.ENABLE_AI_MESSAGES === 'true') {
+			const userMessage: ChatCompletionMessageParam = buildEveningChatRequest(
+				usersWithoutCompletion,
+				habits,
+			)
+
+			try {
+				chatMessage = await generateChatMessage([userMessage])
+			} catch (error) {
+				console.error('Failed to generate chat message', error)
+			}
+		}
+
+		await bot.telegram.sendMessage(chatId, chatMessage)
 	}
 }
 
