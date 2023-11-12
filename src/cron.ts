@@ -6,7 +6,10 @@ import {
 	findUsersInChat,
 	findUsersWithoutHabitCompletions,
 } from './users/users.queries'
-import { generateChatMessage } from './openai'
+import {
+	buildMorningMotivationChatRequest,
+	generateChatMessage,
+} from './openai'
 import { ChatCompletionMessageParam } from 'openai/resources'
 
 export async function sendMorningReminder() {
@@ -17,15 +20,10 @@ export async function sendMorningReminder() {
 
 	for (const { chatId, habits: habitJson } of results) {
 		const habits = habitJson as { title: string; id: number }[]
-		const habitStr = habits.map((habit) => habit.title).join(', ')
+		const users = await findUsersInChat.run({ chatId }, client)
 
-		const chatUsers = await findUsersInChat.run({ chatId }, client)
-		const userNames = chatUsers.map((user) => user.name).join(', ')
-
-		const userMessage: ChatCompletionMessageParam = {
-			role: 'user',
-			content: `Good morning, ${userNames}! Today is a new opportunity to continue building positive habits. Whether it's ${habitStr} or any other personal goals, remember that each small step is a part of your journey towards success and well-being. Stay focused, stay motivated, and embrace the day with enthusiasm! You've got this!`,
-		}
+		const userMessage: ChatCompletionMessageParam =
+			buildMorningMotivationChatRequest(users, habits)
 
 		let chatMessage: string
 		try {
