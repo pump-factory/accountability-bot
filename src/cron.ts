@@ -34,7 +34,6 @@ export async function sendMorningReminder() {
 		)
 
 		let chatMessage = defaultMorningMessage
-
 		if (process.env.ENABLE_AI_MESSAGES === 'true') {
 			try {
 				chatMessage = await generateChatMessage([userMessage])
