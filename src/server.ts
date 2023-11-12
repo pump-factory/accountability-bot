@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { Markup } from 'telegraf'
 import {
 	createHabit,
@@ -20,7 +19,11 @@ import { CustomContext } from './types'
 import { client } from './db'
 import { bot } from './bot'
 import './cron'
-import { scheduleCronJobs } from './cron'
+import {
+	scheduleCronJobs,
+	sendEveningReminder,
+	sendMorningReminder,
+} from './cron'
 
 const start = async () => {
 	await client.connect()
@@ -186,6 +189,14 @@ const start = async () => {
 				),
 			),
 		)
+	})
+
+	bot.command('morning', async (ctx) => {
+		await sendMorningReminder()
+	})
+
+	bot.command('evening', async (ctx) => {
+		await sendEveningReminder()
 	})
 
 	bot.action(/.+/, async (ctx) => {
