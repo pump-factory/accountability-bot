@@ -187,45 +187,6 @@ const findHabitCompletionsForUserTodayIR: any = {"usedParamSet":{"userId":true},
 export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitCompletionsForUserTodayParams,IFindHabitCompletionsForUserTodayResult>(findHabitCompletionsForUserTodayIR);
 
 
-/** 'CreateHabitOld' parameters type */
-export interface ICreateHabitOldParams {
-  chatId?: number | string | null | void;
-  title?: string | null | void;
-}
-
-/** 'CreateHabitOld' return type */
-export type ICreateHabitOldResult = void;
-
-/** 'CreateHabitOld' query type */
-export interface ICreateHabitOldQuery {
-  params: ICreateHabitOldParams;
-  result: ICreateHabitOldResult;
-}
-
-const createHabitOldIR: any = {"usedParamSet":{"title":true,"chatId":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":131,"b":136}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":306,"b":312},{"a":535,"b":541}]}],"statement":"WITH new_habit AS (\n    INSERT INTO \"Habit\" (id, title, description, type, cadence, frequency)\n        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)\n        RETURNING id),\n     new_habit_chat AS (\n         INSERT INTO \"HabitChat\" (\"habitId\", \"chatId\")\n             SELECT id, :chatId\n             FROM new_habit)\nINSERT\nINTO \"HabitFollower\" (id, \"habitId\", \"userId\", \"createdAt\")\nSELECT uuid_generate_v4(), nh.id, uc.\"userId\", now()\nFROM new_habit nh\n         CROSS JOIN \"UserChat\" uc\nWHERE uc.\"chatId\" = :chatId"};
-
-/**
- * Query generated from SQL:
- * ```
- * WITH new_habit AS (
- *     INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
- *         VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
- *         RETURNING id),
- *      new_habit_chat AS (
- *          INSERT INTO "HabitChat" ("habitId", "chatId")
- *              SELECT id, :chatId
- *              FROM new_habit)
- * INSERT
- * INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
- * SELECT uuid_generate_v4(), nh.id, uc."userId", now()
- * FROM new_habit nh
- *          CROSS JOIN "UserChat" uc
- * WHERE uc."chatId" = :chatId
- * ```
- */
-export const createHabitOld = new PreparedQuery<ICreateHabitOldParams,ICreateHabitOldResult>(createHabitOldIR);
-
-
 /** 'CreateHabit' parameters type */
 export interface ICreateHabitParams {
   title?: string | null | void;
