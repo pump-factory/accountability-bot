@@ -32,11 +32,12 @@ SELECT DISTINCT "User".*
 FROM "User"
          JOIN "UserChat" ON "User".id = "UserChat"."userId"
          JOIN "HabitFollower" HF on "User".id = HF."userId"
+         JOIN "Habit" H on HF."habitId" = H.id
+         JOIN "HabitChat" HC on H.id = HC."habitId" AND HC."chatId" = :chatId
          LEFT JOIN "HabitEvent" ON (
             "HabitEvent"."habitFollowerId" = HF.id AND
             "HabitEvent"."createdAt" AT TIME ZONE "User"."timezone" >= (CURRENT_DATE AT TIME ZONE "User"."timezone")
     )
-         LEFT JOIN "Habit" H on HF."habitId" = H.id
 WHERE "HabitEvent".id IS NULL
   AND "UserChat"."chatId" = :chatId;
 
