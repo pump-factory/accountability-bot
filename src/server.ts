@@ -139,6 +139,28 @@ const start = async () => {
 
 	bot.command('log', async (ctx) => {
 		const habits = await findHabitsByChatId.run({ chatId: ctx.chat.id }, client)
+		if (habits.length === 0) {
+			ctx.reply(
+				'There are no habits being tracked in this chat. Create one with /create',
+			)
+			return
+		}
+
+		if (habits.length === 1) {
+			const habit = habits[0]
+
+			await logHabitCompletion.run(
+				{
+					// @ts-ignore
+					telegramId: ctx.user.telegramId,
+					habitId: habit.id,
+				},
+				client,
+			)
+
+			return ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
+		}
+
 		ctx.reply(
 			'Which habit do you want to complete?',
 			Markup.inlineKeyboard(
