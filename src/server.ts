@@ -222,13 +222,13 @@ const start = async () => {
 		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
 	})
 
-	await bot.launch()
-
 	scheduleCronJobs()
 
 	// Enable graceful stop
 	process.once('SIGINT', () => bot.stop('SIGINT'))
 	process.once('SIGTERM', () => bot.stop('SIGTERM'))
+
+	await bot.launch()
 }
 
 start().then(() => console.log('Bot started'))

@@ -61,6 +61,8 @@ export async function sendEveningReminder() {
 }
 
 export function scheduleCronJobs() {
+	console.log('scheduling cron jobs')
+
 	// Morning. 10:30AM EST
 	cron.schedule('30 10 * * *', sendMorningReminder, {
 		timezone: 'America/New_York',
