@@ -13,7 +13,7 @@ from "Habit"
 where "Habit".id = :habitId
   and "chatId" = :chatId;
 
-/* @name findHabitByTitle */
+/* @name FindHabitByTitle */
 select "Habit".*
 from "Habit"
          join "HabitChat"
@@ -33,20 +33,18 @@ where "habitFollowerId" = :userId
   and "createdAt" > now() - interval '1 day';
 
 /* @name CreateHabit */
-WITH new_habit AS (
-    INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
-        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
-        RETURNING id),
-     new_habit_chat AS (
-         INSERT INTO "HabitChat" ("habitId", "chatId")
-             SELECT id, :chatId
-             FROM new_habit)
-INSERT
-INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
-SELECT uuid_generate_v4(), nh.id, uc."userId", now()
-FROM new_habit nh
-         CROSS JOIN "UserChat" uc
-WHERE uc."chatId" = :chatId;
+INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
+VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
+RETURNING id;
+
+/* @name CreateHabitFollower */
+INSERT INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
+VALUES (uuid_generate_v4(), :habitId, :userId, now())
+RETURNING id;
+
+/* @name CreateHabitChat */
+INSERT INTO "HabitChat" ("habitId", "chatId")
+VALUES (:habitId, :chatId);
 
 /* @name LogHabitCompletion */
 with cur_user as (select *

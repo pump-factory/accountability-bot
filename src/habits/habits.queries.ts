@@ -187,22 +187,22 @@ const findHabitCompletionsForUserTodayIR: any = {"usedParamSet":{"userId":true},
 export const findHabitCompletionsForUserToday = new PreparedQuery<IFindHabitCompletionsForUserTodayParams,IFindHabitCompletionsForUserTodayResult>(findHabitCompletionsForUserTodayIR);
 
 
-/** 'CreateHabit' parameters type */
-export interface ICreateHabitParams {
+/** 'CreateHabitOld' parameters type */
+export interface ICreateHabitOldParams {
   chatId?: number | string | null | void;
   title?: string | null | void;
 }
 
-/** 'CreateHabit' return type */
-export type ICreateHabitResult = void;
+/** 'CreateHabitOld' return type */
+export type ICreateHabitOldResult = void;
 
-/** 'CreateHabit' query type */
-export interface ICreateHabitQuery {
-  params: ICreateHabitParams;
-  result: ICreateHabitResult;
+/** 'CreateHabitOld' query type */
+export interface ICreateHabitOldQuery {
+  params: ICreateHabitOldParams;
+  result: ICreateHabitOldResult;
 }
 
-const createHabitIR: any = {"usedParamSet":{"title":true,"chatId":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":131,"b":136}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":306,"b":312},{"a":535,"b":541}]}],"statement":"WITH new_habit AS (\n    INSERT INTO \"Habit\" (id, title, description, type, cadence, frequency)\n        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)\n        RETURNING id),\n     new_habit_chat AS (\n         INSERT INTO \"HabitChat\" (\"habitId\", \"chatId\")\n             SELECT id, :chatId\n             FROM new_habit)\nINSERT\nINTO \"HabitFollower\" (id, \"habitId\", \"userId\", \"createdAt\")\nSELECT uuid_generate_v4(), nh.id, uc.\"userId\", now()\nFROM new_habit nh\n         CROSS JOIN \"UserChat\" uc\nWHERE uc.\"chatId\" = :chatId"};
+const createHabitOldIR: any = {"usedParamSet":{"title":true,"chatId":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":131,"b":136}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":306,"b":312},{"a":535,"b":541}]}],"statement":"WITH new_habit AS (\n    INSERT INTO \"Habit\" (id, title, description, type, cadence, frequency)\n        VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)\n        RETURNING id),\n     new_habit_chat AS (\n         INSERT INTO \"HabitChat\" (\"habitId\", \"chatId\")\n             SELECT id, :chatId\n             FROM new_habit)\nINSERT\nINTO \"HabitFollower\" (id, \"habitId\", \"userId\", \"createdAt\")\nSELECT uuid_generate_v4(), nh.id, uc.\"userId\", now()\nFROM new_habit nh\n         CROSS JOIN \"UserChat\" uc\nWHERE uc.\"chatId\" = :chatId"};
 
 /**
  * Query generated from SQL:
@@ -223,7 +223,93 @@ const createHabitIR: any = {"usedParamSet":{"title":true,"chatId":true},"params"
  * WHERE uc."chatId" = :chatId
  * ```
  */
+export const createHabitOld = new PreparedQuery<ICreateHabitOldParams,ICreateHabitOldResult>(createHabitOldIR);
+
+
+/** 'CreateHabit' parameters type */
+export interface ICreateHabitParams {
+  title?: string | null | void;
+}
+
+/** 'CreateHabit' return type */
+export interface ICreateHabitResult {
+  id: string;
+}
+
+/** 'CreateHabit' query type */
+export interface ICreateHabitQuery {
+  params: ICreateHabitParams;
+  result: ICreateHabitResult;
+}
+
+const createHabitIR: any = {"usedParamSet":{"title":true},"params":[{"name":"title","required":false,"transform":{"type":"scalar"},"locs":[{"a":99,"b":104}]}],"statement":"INSERT INTO \"Habit\" (id, title, description, type, cadence, frequency)\nVALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)\nRETURNING id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO "Habit" (id, title, description, type, cadence, frequency)
+ * VALUES (uuid_generate_v4(), :title, 'telegram habit', 'MAKING', 'DAILY', 0)
+ * RETURNING id
+ * ```
+ */
 export const createHabit = new PreparedQuery<ICreateHabitParams,ICreateHabitResult>(createHabitIR);
+
+
+/** 'CreateHabitFollower' parameters type */
+export interface ICreateHabitFollowerParams {
+  habitId?: string | null | void;
+  userId?: string | null | void;
+}
+
+/** 'CreateHabitFollower' return type */
+export interface ICreateHabitFollowerResult {
+  id: string;
+}
+
+/** 'CreateHabitFollower' query type */
+export interface ICreateHabitFollowerQuery {
+  params: ICreateHabitFollowerParams;
+  result: ICreateHabitFollowerResult;
+}
+
+const createHabitFollowerIR: any = {"usedParamSet":{"habitId":true,"userId":true},"params":[{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":95,"b":102}]},{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":105,"b":111}]}],"statement":"INSERT INTO \"HabitFollower\" (id, \"habitId\", \"userId\", \"createdAt\")\nVALUES (uuid_generate_v4(), :habitId, :userId, now())\nRETURNING id"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO "HabitFollower" (id, "habitId", "userId", "createdAt")
+ * VALUES (uuid_generate_v4(), :habitId, :userId, now())
+ * RETURNING id
+ * ```
+ */
+export const createHabitFollower = new PreparedQuery<ICreateHabitFollowerParams,ICreateHabitFollowerResult>(createHabitFollowerIR);
+
+
+/** 'CreateHabitChat' parameters type */
+export interface ICreateHabitChatParams {
+  chatId?: number | string | null | void;
+  habitId?: string | null | void;
+}
+
+/** 'CreateHabitChat' return type */
+export type ICreateHabitChatResult = void;
+
+/** 'CreateHabitChat' query type */
+export interface ICreateHabitChatQuery {
+  params: ICreateHabitChatParams;
+  result: ICreateHabitChatResult;
+}
+
+const createHabitChatIR: any = {"usedParamSet":{"habitId":true,"chatId":true},"params":[{"name":"habitId","required":false,"transform":{"type":"scalar"},"locs":[{"a":54,"b":61}]},{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":64,"b":70}]}],"statement":"INSERT INTO \"HabitChat\" (\"habitId\", \"chatId\")\nVALUES (:habitId, :chatId)"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO "HabitChat" ("habitId", "chatId")
+ * VALUES (:habitId, :chatId)
+ * ```
+ */
+export const createHabitChat = new PreparedQuery<ICreateHabitChatParams,ICreateHabitChatResult>(createHabitChatIR);
 
 
 /** 'LogHabitCompletion' parameters type */
