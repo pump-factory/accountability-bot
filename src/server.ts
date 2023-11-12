@@ -122,6 +122,12 @@ const start = async () => {
 			return
 		}
 
+		/**
+		 * Create a new habit, which now has a few parts:
+		 * 1. Create the Habit record
+		 * 2. Create the HabitChat record
+		 * 3. Create a HabitFollower record for each user in the chat
+		 */
 		try {
 			const habitResult = await createHabit.run({ title: ctx.payload }, client)
 			const habit = habitResult[0]

@@ -23,10 +23,8 @@ export async function sendMorningReminder() {
 
 /**
  * End of day message
- * For each unique chat ID
- * 	- Get list of habits
- * 	- Find users without a habit_completion for each habit
- * 	- DM each user that hasn't completed habit?
+ * Finds users without HabitEvents for any habits in the chat
+ * and encourages them to complete their habit.
  */
 export async function sendEveningReminder() {
 	// Find distinct chat IDs
