@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "start": "tsc && node dist/src/server.js",
-    "generate-sql": "pgtyped -c pg-typed-config.json",
+    "gen-sql": "pgtyped -c pg-typed-config.json",
     "test": "NODE_ENV=test vitest run --config vitest.config.ts",
     "test:watch": "NODE_ENV=test vitest --config vitest.config.ts"
   },
