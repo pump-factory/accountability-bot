@@ -4,6 +4,12 @@ from "User"
 where "telegramId" = :telegramId
 limit 1;
 
+/* @name FindUsersInChat */
+SELECT *
+FROM "User"
+         JOIN "UserChat" ON "User".id = "UserChat"."userId"
+WHERE "UserChat"."chatId" = :chatId;
+
 /* @name CreateUser */
 with new_user as (
     insert into "User" (id, "telegramId", "name", "createdAt", "updatedAt", "email")

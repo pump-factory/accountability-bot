@@ -37,6 +37,44 @@ const findUserByTelegramIdIR: any = {"usedParamSet":{"telegramId":true},"params"
 export const findUserByTelegramId = new PreparedQuery<IFindUserByTelegramIdParams,IFindUserByTelegramIdResult>(findUserByTelegramIdIR);
 
 
+/** 'FindUsersInChat' parameters type */
+export interface IFindUsersInChatParams {
+  chatId?: number | string | null | void;
+}
+
+/** 'FindUsersInChat' return type */
+export interface IFindUsersInChatResult {
+  chatId: string;
+  createdAt: Date;
+  email: string;
+  id: string;
+  name: string;
+  telegramId: string | null;
+  timezone: string | null;
+  updatedAt: Date;
+  userId: string;
+}
+
+/** 'FindUsersInChat' query type */
+export interface IFindUsersInChatQuery {
+  params: IFindUsersInChatParams;
+  result: IFindUsersInChatResult;
+}
+
+const findUsersInChatIR: any = {"usedParamSet":{"chatId":true},"params":[{"name":"chatId","required":false,"transform":{"type":"scalar"},"locs":[{"a":109,"b":115}]}],"statement":"SELECT *\nFROM \"User\"\n         JOIN \"UserChat\" ON \"User\".id = \"UserChat\".\"userId\"\nWHERE \"UserChat\".\"chatId\" = :chatId"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT *
+ * FROM "User"
+ *          JOIN "UserChat" ON "User".id = "UserChat"."userId"
+ * WHERE "UserChat"."chatId" = :chatId
+ * ```
+ */
+export const findUsersInChat = new PreparedQuery<IFindUsersInChatParams,IFindUsersInChatResult>(findUsersInChatIR);
+
+
 /** 'CreateUser' parameters type */
 export interface ICreateUserParams {
   chatId?: number | string | null | void;
