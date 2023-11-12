@@ -1,30 +1,29 @@
 import 'dotenv/config'
-import { Markup, Telegraf } from 'telegraf'
-import cron from 'node-cron'
+import { Markup } from 'telegraf'
 import {
 	createHabit,
+	createHabitChat,
 	deleteHabitFollowersForUserAndChat,
 	deleteUserChat,
 	findHabit,
 	findHabitByTitle,
 	findHabitsByChatId,
-	findHabitsGroupedByChatId,
 	logHabitCompletion,
 } from './habits/habits.queries'
 import {
 	createHabitFollower,
 	createUser,
-	deleteUser,
 	findUserByTelegramId,
-	findUsersWithoutHabitCompletions,
+	findUsersInChat,
 } from './users/users.queries'
 import { CustomContext } from './types'
 import { client } from './db'
+import { bot } from './bot'
+import './cron'
+import { scheduleCronJobs } from './cron'
 
 const start = async () => {
 	await client.connect()
-
-	const bot = new Telegraf(process.env.BOT_TOKEN)
 
 	// Register logger middleware
 	bot.use((ctx, next) => {
@@ -108,10 +107,6 @@ const start = async () => {
 		)
 	})
 
-	bot.start((ctx) => ctx.reply("Welcome! Let's get accountable baby"))
-
-	bot.help((ctx) => ctx.reply('Implement me daddy!'))
-
 	bot.command('create', async (ctx) => {
 		if (!ctx.payload) {
 			ctx.reply('please provide a habit name')
@@ -128,7 +123,23 @@ const start = async () => {
 		}
 
 		try {
-			await createHabit.run({ title: ctx.payload, chatId: ctx.chat.id }, client)
+			const habitResult = await createHabit.run({ title: ctx.payload }, client)
+			const habit = habitResult[0]
+
+			await createHabitChat.run(
+				{ habitId: habit.id, chatId: ctx.chat.id },
+				client,
+			)
+
+			const chatId = ctx.update.message.chat.id
+			const users = await findUsersInChat.run({ chatId }, client)
+
+			for (const user of users) {
+				await createHabitFollower.run(
+					{ habitId: habit.id, telegramId: user.telegramId },
+					client,
+				)
+			}
 		} catch (err) {
 			ctx.reply('error creating habit. please try again')
 			return
@@ -205,66 +216,9 @@ const start = async () => {
 		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
 	})
 
-	// Beginning of day message
-	cron.schedule('30 12 * * *', async () => {
-		const results = await findHabitsGroupedByChatId.run(undefined, client)
-		if (results.length === 0) {
-			return
-		}
-
-		for (const { chatId, habits: habitJson } of results) {
-			const habits = habitJson as { title: string; id: number }[]
-			const habitStr = habits.map((habit) => habit.title).join(', ')
-
-			await bot.telegram.sendMessage(
-				chatId,
-				"Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters",
-			)
-		}
-	})
-
-	/**
-	 * End of day message
-	 * For each unique chat ID
-	 * 	- Get list of habits
-	 * 	- Find users without a habit_completion for each habit
-	 * 	- DM each user that hasn't completed habit?
-	 */
-	cron.schedule('30 23 * * *', async () => {
-		// Find distinct chat IDs
-		const chatIdResults = await findHabitsGroupedByChatId.run(undefined, client)
-		if (chatIdResults.length === 0) {
-			return
-		}
-
-		// For each chat ID, find users without a habit completion for each habit
-		for (const { chatId } of chatIdResults) {
-			const usersWithoutCompletion = await findUsersWithoutHabitCompletions.run(
-				{ chatId },
-				client,
-			)
-
-			// If everyone completed their habit, send congratulations
-			if (usersWithoutCompletion.length === 0) {
-				await bot.telegram.sendMessage(
-					chatId,
-					"Congratulations, everyone! 🎉 You've all rocked your meditation practice today, and your dedication is truly inspiring. Let's keep this positive momentum going as we continue to prioritize our well-being together. 🧘‍♀️🧘‍♂️ #MeditationMasters",
-				)
-				continue
-			}
-
-			// Remind any users who haven't completed their habit to do so
-			const userNames = usersWithoutCompletion.map((user) => user.name)
-			await bot.telegram.sendMessage(
-				chatId,
-				`${userNames.join(
-					', ',
-				)} still need to complete their habits, go ahead and give them some encouragement!`,
-			)
-		}
-	})
-
 	await bot.launch()
+
+	scheduleCronJobs()
 
 	// Enable graceful stop
 	process.once('SIGINT', () => bot.stop('SIGINT'))
