@@ -19,7 +19,6 @@ import {
 import { CustomContext } from './types'
 import { client } from './db'
 import { bot } from './bot'
-import './cron'
 import {
 	scheduleCronJobs,
 	sendEveningReminder,
