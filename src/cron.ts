@@ -109,4 +109,9 @@ export function scheduleCronJobs() {
 	cron.schedule('0 20 * * *', sendEveningReminder, {
 		timezone: 'America/New_York',
 	})
+
+	// Keep the bot alive
+	cron.schedule('0/14 * * * *', async function () {
+		await fetch(process.env.HEALTHCHECK_URL)
+	})
 }

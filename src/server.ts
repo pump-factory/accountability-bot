@@ -24,6 +24,7 @@ import {
 	sendEveningReminder,
 	sendMorningReminder,
 } from './cron'
+import { createServer } from 'http'
 
 const start = async () => {
 	await client.connect()
@@ -241,4 +242,21 @@ const start = async () => {
 	await bot.launch()
 }
 
-start().then(() => console.log('Bot started'))
+async function startServer() {
+	const server = createServer((req, res) => {
+		if (req.url === '/health-w234kj234lkj234lk2j34' && req.method === 'GET') {
+			res.writeHead(200, { 'Content-Type': 'application/json' })
+			res.end(JSON.stringify({ status: 'healthy' }))
+		} else {
+			res.writeHead(404, { 'Content-Type': 'text/plain' })
+			res.end('Not Found')
+		}
+	})
+
+	server.listen(process.env.PORT, () => {
+		console.log(`Server is running on port ${process.env.PORT}`)
+	})
+}
+
+start().then(() => console.log('Bot died'))
+startServer().then(() => console.log('Server died'))
