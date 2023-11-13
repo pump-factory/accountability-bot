@@ -235,16 +235,13 @@ const start = async () => {
 
 	scheduleCronJobs()
 
-	// Enable graceful stop
-	process.once('SIGINT', () => bot.stop('SIGINT'))
-	process.once('SIGTERM', () => bot.stop('SIGTERM'))
-
 	await bot.launch()
 }
 
-async function startServer() {
+function startServer() {
 	const server = createServer((req, res) => {
 		if (req.url === '/health-w234kj234lkj234lk2j34' && req.method === 'GET') {
+			console.log('health check. ok')
 			res.writeHead(200, { 'Content-Type': 'application/json' })
 			res.end(JSON.stringify({ status: 'healthy' }))
 		} else {
@@ -258,5 +255,9 @@ async function startServer() {
 	})
 }
 
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
+
 start().then(() => console.log('Bot died'))
-startServer().then(() => console.log('Server died'))
+startServer()
