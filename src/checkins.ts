@@ -5,8 +5,10 @@ import {
 import { client } from './db'
 import { bot } from './bot'
 import {
+	findRecentHabitEvents,
 	findUsersInChat,
 	findUsersWithoutHabitCompletions,
+	IFindUsersInChatResult,
 } from './users/users.queries'
 import {
 	buildEveningChatRequest,
@@ -36,7 +38,11 @@ export async function sendMorningReminder() {
 		let chatMessage = defaultMorningMessage
 		if (process.env.ENABLE_AI_MESSAGES === 'true') {
 			try {
-				chatMessage = await generateChatMessage([userMessage])
+				const maybeChatMessage = await generateChatMessage([userMessage])
+
+				if (maybeChatMessage) {
+					chatMessage = maybeChatMessage
+				}
 			} catch (error) {
 				console.error('Failed to generate chat message', error)
 			}
@@ -61,16 +67,49 @@ export async function sendEveningReminder() {
 
 	// For each chat ID, find users without a habit completion for each habit
 	for (const { chatId } of chatIdResults) {
-		const usersWithoutCompletion = await findUsersWithoutHabitCompletions.run(
-			{ chatId },
-			client,
-		)
-
 		const habits = await findHabitsByChatId.run({ chatId }, client)
+		const users = await findUsersInChat.run({ chatId }, client)
+
 		if (habits.length === 0) {
 			console.log(`No habits found for chat. Skipping`, chatId)
 			continue
 		}
+
+		if (users.length === 0) {
+			console.log(`No users found for chat. Skipping`, chatId)
+			continue
+		}
+
+		const incompleteHabits: Record<string, IFindUsersInChatResult[]> = {}
+
+		for (const habit of habits) {
+			incompleteHabits[habit.title] = [...users]
+
+			const habitEvents = await findRecentHabitEvents.run(
+				{
+					habitId: habit.id,
+				},
+				client,
+			)
+
+			// remove users from incompleteHabits[habit.title] if they have a habitEvent
+			for (const habitEvent of habitEvents) {
+				const index = incompleteHabits[habit.title].findIndex(
+					(user) => user.id === habitEvent.userId,
+				)
+				if (index !== -1) {
+					incompleteHabits[habit.title].splice(index, 1)
+				}
+			}
+		}
+
+		// flatten and filter array for unique values
+		const usersWithoutCompletion = Object.values(incompleteHabits)
+			.flat()
+			.filter(
+				(user, index, users) =>
+					users.findIndex((u) => u.id === user.id) === index,
+			)
 
 		let chatMessage: string =
 			usersWithoutCompletion.length === 0
@@ -88,7 +127,11 @@ export async function sendEveningReminder() {
 			)
 
 			try {
-				chatMessage = await generateChatMessage([userMessage])
+				const maybeChatMessage = await generateChatMessage([userMessage])
+
+				if (maybeChatMessage) {
+					chatMessage = maybeChatMessage
+				}
 			} catch (error) {
 				console.error('Failed to generate chat message', error)
 			}

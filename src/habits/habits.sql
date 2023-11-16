@@ -46,7 +46,7 @@ RETURNING id;
 INSERT INTO "HabitChat" ("habitId", "chatId")
 VALUES (:habitId, :chatId);
 
-/* @name LogHabitCompletion */
+/* @name logHabitCompletion */
 with cur_user as (select *
                   from "User"
                   where "telegramId" = :telegramId
@@ -59,7 +59,7 @@ values (uuid_generate_v4(), (select id
                                and "habitId" = :habitId), now() AT TIME ZONE (select timezone from cur_user))
 ON CONFLICT DO NOTHING;
 
-/*  @name FindHabitsGroupedByChatId */
+/*  @name findHabitsGroupedByChatId */
 SELECT "chatId", json_agg("Habit".*) AS habits
 FROM "Habit"
          join public."HabitChat" HC on "Habit".id = HC."habitId"

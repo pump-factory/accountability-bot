@@ -1,4 +1,7 @@
 import { Telegraf } from 'telegraf'
+import { invariant } from './invariant'
+
+invariant(process.env.BOT_TOKEN, `BOT_TOKEN is required`)
 
 export const bot = new Telegraf(process.env.BOT_TOKEN)
 

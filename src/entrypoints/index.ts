@@ -15,12 +15,14 @@ import {
 	createUser,
 	findUserByTelegramId,
 	findUsersInChat,
+	IFindUserByTelegramIdResult,
 } from '../users/users.queries'
 import { CustomContext } from '../types'
 import { client } from '../db'
 import { bot } from '../bot'
 import { sendEveningReminder, sendMorningReminder } from '../checkins'
 import { createServer } from 'http'
+import { invariant } from '../invariant'
 
 const start = async () => {
 	await client.connect()
@@ -32,11 +34,15 @@ const start = async () => {
 	})
 
 	// Register middleware to find or create user and user_chats rows
-	bot.use(async (ctx: CustomContext, next) => {
+	bot.use(async (ctx, next) => {
+		invariant(ctx.from, 'ctx.from is undefined')
+		invariant(ctx.chat, 'ctx.chat is undefined')
+
 		const telegramId = ctx.from.id
 
 		const results = await findUserByTelegramId.run({ telegramId }, client)
 		if (results.length >= 1) {
+			// @ts-ignore
 			ctx.user = results[0]
 			return next()
 		}
@@ -141,6 +147,11 @@ const start = async () => {
 			const users = await findUsersInChat.run({ chatId }, client)
 
 			for (const user of users) {
+				if (!user.telegramId) {
+					console.log('user does not have a telegram id', user.name)
+					continue
+				}
+
 				await createHabitFollower.run(
 					{ habitId: habit.id, telegramId: user.telegramId },
 					client,
@@ -165,11 +176,11 @@ const start = async () => {
 
 		if (habits.length === 1) {
 			const habit = habits[0]
+			const user = (ctx as any).user as IFindUserByTelegramIdResult
 
 			await logHabitCompletion.run(
 				{
-					// @ts-ignore
-					telegramId: ctx.user.telegramId,
+					telegramId: user.telegramId,
 					habitId: habit.id,
 				},
 				client,
@@ -196,6 +207,9 @@ const start = async () => {
 	})
 
 	bot.action(/.+/, async (ctx) => {
+		invariant(ctx.chat, 'ctx.chat is undefined')
+		invariant(ctx.from, 'ctx.from is undefined')
+
 		await ctx.editMessageReplyMarkup(undefined)
 		if (!ctx.match[0]) {
 			ctx.reply('error logging habit completion. please try again')
@@ -212,11 +226,12 @@ const start = async () => {
 		}
 
 		const habit = results[0]
+		const user = (ctx as any).user as IFindUserByTelegramIdResult
+
 		try {
 			await logHabitCompletion.run(
 				{
-					// @ts-ignore
-					telegramId: ctx.user.telegramId,
+					telegramId: user.telegramId,
 					habitId: habit.id,
 				},
 				client,
@@ -244,9 +259,11 @@ function startServer() {
 		}
 	})
 
-	server.listen(process.env.PORT, () => {
-		console.log(`Server is running on port ${process.env.PORT}`)
-	})
+	if (process.env.PORT) {
+		server.listen(process.env.PORT, () => {
+			console.log(`Server is running on port ${process.env.PORT}`)
+		})
+	}
 }
 
 // Enable graceful stop

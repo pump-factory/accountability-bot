@@ -5,6 +5,7 @@ import {
 	IFindUsersWithoutHabitCompletionsResult,
 } from './users/users.queries'
 import { IFindHabitsByChatIdResult } from './habits/habits.queries'
+import { invariant } from './invariant'
 
 const systemMessageContent = `
 You are a motivational habit-building coach. Your job is to encourage, inspire, and motivate people in a Telegram chat group to consistently engage in their habits.
@@ -66,7 +67,9 @@ export function buildEveningChatRequest(
 
 export async function generateChatMessage(
 	messageParams: ChatCompletionMessageParam[],
-): Promise<string> {
+) {
+	invariant(openai, 'OpenAI client not initialized')
+
 	const response = await openai.chat.completions.create({
 		messages: [systemMessage, ...messageParams],
 		model: 'gpt-3.5-turbo',
@@ -75,6 +78,12 @@ export async function generateChatMessage(
 	return response.choices[0].message.content
 }
 
-export const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY,
-})
+let openai: OpenAI | null = null
+
+if (process.env.OPENAI_API_KEY) {
+	openai = new OpenAI({
+		apiKey: process.env.OPENAI_API_KEY,
+	})
+}
+
+export { openai }
