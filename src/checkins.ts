@@ -20,6 +20,7 @@ const defaultMorningMessage = `Good morning, accountability champions! 🌞 Toda
 export async function sendMorningReminder() {
 	const results = await findHabitsGroupedByChatId.run(undefined, client)
 	if (results.length === 0) {
+		console.log('No habits found for any chats')
 		return
 	}
 
@@ -54,6 +55,7 @@ export async function sendEveningReminder() {
 	// Find distinct chat IDs
 	const chatIdResults = await findHabitsGroupedByChatId.run(undefined, client)
 	if (chatIdResults.length === 0) {
+		console.log('No habits found for any chats')
 		return
 	}
 
@@ -66,10 +68,10 @@ export async function sendEveningReminder() {
 
 		const habits = await findHabitsByChatId.run({ chatId }, client)
 		if (habits.length === 0) {
+			console.log(`No habits found for chat. Skipping`, chatId)
 			continue
 		}
 
-		// Build default message
 		let chatMessage: string =
 			usersWithoutCompletion.length === 0
 				? `Congrats everyone!  You've all rocked your habits today🎉`

@@ -1,5 +1,17 @@
 import { sendEveningReminder } from '../checkins'
+import { client } from '../db'
 
-sendEveningReminder().then(() => {
-	console.log('Evening reminder sent!')
-})
+async function main() {
+	await client.connect()
+
+	try {
+		await sendEveningReminder()
+		console.log('Finished without errors')
+	} catch (error) {
+		console.error('Failed to send evening reminder', error)
+	} finally {
+		await client.end()
+	}
+}
+
+main()
