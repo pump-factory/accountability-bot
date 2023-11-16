@@ -9,10 +9,12 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
-    "start": "node dist/src/server.js",
     "gen-sql": "pgtyped -c pg-typed-config.json",
     "test": "NODE_ENV=test vitest run --config vitest.config.ts",
-    "test:watch": "NODE_ENV=test vitest --config vitest.config.ts"
+    "test:watch": "NODE_ENV=test vitest --config vitest.config.ts",
+    "start": "node dist/src/entrypoints/index.js",
+    "cron:morning": "node dist/src/entrypoints/morningMotivation.cron.js",
+    "cron:evening": "node dist/src/entrypoints/eveningCheckin.cron.js"
   },
   "keywords": [],
   "author": "",
