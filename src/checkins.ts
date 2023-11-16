@@ -141,6 +141,6 @@ export async function sendEveningReminder() {
 			}
 		}
 
-		// await bot.telegram.sendMessage(chatId, chatMessage)
+		await bot.telegram.sendMessage(chatId, chatMessage)
 	}
 }

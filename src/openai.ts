@@ -52,11 +52,13 @@ export function buildEveningChatRequest(
 	habits: IFindHabitsByChatIdResult[],
 ): ChatCompletionMessageParam {
 	const names = usersWithoutCompletion.map((user) => user.name)
-	const habitNames = habits.map((habit) => habit.title)
+	const habitNames = habits.map((habit) => habit.title).join(', ')
 
 	let content =
 		names.length > 1
-			? `${names} haven't completed their habits. Give them encouragement to complete ${habitNames}`
+			? `${names.join(
+					', ',
+			  )} haven't completed their habits. Give them encouragement to complete ${habitNames}`
 			: `everyone crushed their habits today. Give them a pat on the back for completing ${habitNames}`
 
 	return {
