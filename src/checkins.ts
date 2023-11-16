@@ -1,4 +1,3 @@
-import cron from 'node-cron'
 import {
 	findHabitsByChatId,
 	findHabitsGroupedByChatId,
@@ -95,38 +94,4 @@ export async function sendEveningReminder() {
 
 		await bot.telegram.sendMessage(chatId, chatMessage)
 	}
-}
-
-export function scheduleCronJobs() {
-	console.log('scheduling cron jobs')
-
-	// Morning. 10:30AM EST
-	cron.schedule(
-		'30 10 * * *',
-		async function () {
-			console.log('CRON: morning reminder')
-			await sendMorningReminder()
-		},
-		{
-			timezone: 'America/New_York',
-		},
-	)
-
-	// Evening. 8PM EST
-	cron.schedule(
-		'0 20 * * *',
-		async function () {
-			console.log('CRON: evening reminder')
-			await sendEveningReminder()
-		},
-		{
-			timezone: 'America/New_York',
-		},
-	)
-
-	// Keep the bot alive
-	cron.schedule('0/14 * * * *', async function () {
-		console.log('CRON: healthcheck')
-		await fetch(process.env.HEALTHCHECK_URL)
-	})
 }

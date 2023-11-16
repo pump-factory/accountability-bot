@@ -9,21 +9,17 @@ import {
 	findHabitByTitle,
 	findHabitsByChatId,
 	logHabitCompletion,
-} from './habits/habits.queries'
+} from '../habits/habits.queries'
 import {
 	createHabitFollower,
 	createUser,
 	findUserByTelegramId,
 	findUsersInChat,
-} from './users/users.queries'
-import { CustomContext } from './types'
-import { client } from './db'
-import { bot } from './bot'
-import {
-	scheduleCronJobs,
-	sendEveningReminder,
-	sendMorningReminder,
-} from './cron'
+} from '../users/users.queries'
+import { CustomContext } from '../types'
+import { client } from '../db'
+import { bot } from '../bot'
+import { sendEveningReminder, sendMorningReminder } from '../checkins'
 import { createServer } from 'http'
 
 const start = async () => {
@@ -232,8 +228,6 @@ const start = async () => {
 
 		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
 	})
-
-	scheduleCronJobs()
 
 	await bot.launch()
 }
