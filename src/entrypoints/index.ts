@@ -253,6 +253,7 @@ const start = async () => {
 
 		// TODO: Check for the specific error and only retry if it's multiple instances error
 
+		console.log('Error launching bot. Retrying in 3 seconds', error)
 		setTimeout(async () => {
 			await bot.launch()
 		}, 3000)

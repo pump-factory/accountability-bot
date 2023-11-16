@@ -115,14 +115,7 @@ export async function sendEveningReminder() {
 
 		console.log('Users without habit completions today', usersWithoutCompletion)
 
-		let chatMessage: string =
-			usersWithoutCompletion.length === 0
-				? `Congrats everyone!  You've all rocked your habits today🎉`
-				: `${usersWithoutCompletion
-						.map((user) => user.name)
-						.join(
-							', ',
-						)} still need to complete their habits. Give them some encouragement.`
+		let chatMessage = buildDefaultEveningMessage(usersWithoutCompletion)
 
 		if (process.env.ENABLE_AI_MESSAGES === 'true') {
 			const userMessage: ChatCompletionMessageParam = buildEveningChatRequest(
@@ -143,4 +136,14 @@ export async function sendEveningReminder() {
 
 		await bot.telegram.sendMessage(chatId, chatMessage)
 	}
+}
+
+function buildDefaultEveningMessage(users: IFindUsersInChatResult[]) {
+	return users.length === 0
+		? `Congrats everyone!  You've all rocked your habits today🎉`
+		: `${users
+				.map((user) => user.name)
+				.join(
+					', ',
+				)} still need to complete their habits. Give them some encouragement.`
 }
