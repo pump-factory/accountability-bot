@@ -92,6 +92,8 @@ export async function sendEveningReminder() {
 				client,
 			)
 
+			console.log(`Habit events for habit: ${habit.title}`, habitEvents)
+
 			// remove users from incompleteHabits[habit.title] if they have a habitEvent
 			for (const habitEvent of habitEvents) {
 				const index = incompleteHabits[habit.title].findIndex(
@@ -110,6 +112,8 @@ export async function sendEveningReminder() {
 				(user, index, users) =>
 					users.findIndex((u) => u.id === user.id) === index,
 			)
+
+		console.log('Users without habit completions today', usersWithoutCompletion)
 
 		let chatMessage: string =
 			usersWithoutCompletion.length === 0
@@ -137,6 +141,6 @@ export async function sendEveningReminder() {
 			}
 		}
 
-		await bot.telegram.sendMessage(chatId, chatMessage)
+		// await bot.telegram.sendMessage(chatId, chatMessage)
 	}
 }
