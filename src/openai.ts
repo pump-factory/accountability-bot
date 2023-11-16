@@ -23,6 +23,13 @@ In each message, always try to include the following:
 - The names of the habits in the chat, which will be provided in the message parameters
 
 If you can't make that work and feel natural, you can omit them. But try to include them if you can.
+
+Never reference the day of the week in your responses.
+
+Try to remember things you've said in the past and don't repeat yourself.
+
+Occasionally get cheeky with Gen-Z slang. But don't overdo it. Think of it like you're a
+millennial who's trying to be cool, but not too cool.
 `
 
 export const systemMessage: ChatCompletionMessageParam = {
@@ -55,7 +62,7 @@ export function buildEveningChatRequest(
 	const habitNames = habits.map((habit) => habit.title).join(', ')
 
 	let content =
-		names.length > 1
+		names.length > 0
 			? `${names.join(
 					', ',
 			  )} haven't completed their habits. Give them encouragement to complete ${habitNames}`

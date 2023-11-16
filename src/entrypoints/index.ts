@@ -244,7 +244,19 @@ const start = async () => {
 		ctx.reply(`🥳 ${ctx.from.first_name} completed: ${habit.title}!`)
 	})
 
-	await bot.launch()
+	try {
+		await bot.launch()
+	} catch (error) {
+		// NOTE: We do this to work around Render's zero-downtime deploys.
+		// When the new version rolls out, Render keeps the old version running for some time period.
+		// If the old version is still running, we'll get an error that there is already a bot instance.
+
+		// TODO: Check for the specific error and only retry if it's multiple instances error
+
+		setTimeout(async () => {
+			await bot.launch()
+		}, 3000)
+	}
 }
 
 function startServer() {
