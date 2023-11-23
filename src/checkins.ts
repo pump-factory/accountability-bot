@@ -20,6 +20,8 @@ import { ChatCompletionMessageParam } from 'openai/resources'
 const defaultMorningMessage = `Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters`
 
 export async function sendMorningReminder() {
+	console.log('Sending morning motivation')
+
 	const results = await findHabitsGroupedByChatId.run(undefined, client)
 	if (results.length === 0) {
 		console.log('No habits found for any chats')
@@ -30,6 +32,12 @@ export async function sendMorningReminder() {
 		const habits = habitJson as { title: string; id: number }[]
 		const users = await findUsersInChat.run({ chatId }, client)
 
+		console.log('Generating message for chat..', {
+			chatId,
+			habitCount: habits.length,
+			userCount: users.length,
+		})
+
 		const userMessage: ChatCompletionMessageParam = buildMorningChatRequest(
 			users,
 			habits,
@@ -37,6 +45,8 @@ export async function sendMorningReminder() {
 
 		let chatMessage = defaultMorningMessage
 		if (process.env.ENABLE_AI_MESSAGES === 'true') {
+			console.log('Generating chat message with 🪄 AI', { chatId })
+
 			try {
 				const maybeChatMessage = await generateChatMessage([userMessage])
 
@@ -44,7 +54,10 @@ export async function sendMorningReminder() {
 					chatMessage = maybeChatMessage
 				}
 			} catch (error) {
-				console.error('Failed to generate chat message', error)
+				console.error(
+					'Failed to generate chat message with 🪄 AI. Falling back to default',
+					error,
+				)
 			}
 		}
 
@@ -81,7 +94,6 @@ export async function sendEveningReminder() {
 		}
 
 		const incompleteHabits: Record<string, IFindUsersInChatResult[]> = {}
-
 		for (const habit of habits) {
 			incompleteHabits[habit.title] = [...users]
 
@@ -92,7 +104,7 @@ export async function sendEveningReminder() {
 				client,
 			)
 
-			console.log(`Habit events for habit: ${habit.title}`, habitEvents)
+			console.log(`Recent HabitEvents for habit: ${habit.title}`, habitEvents)
 
 			// remove users from incompleteHabits[habit.title] if they have a habitEvent
 			for (const habitEvent of habitEvents) {
@@ -114,10 +126,10 @@ export async function sendEveningReminder() {
 			)
 
 		console.log('Users without habit completions today', usersWithoutCompletion)
-
 		let chatMessage = buildDefaultEveningMessage(usersWithoutCompletion)
 
 		if (process.env.ENABLE_AI_MESSAGES === 'true') {
+			console.log('Generating chat message with 🪄 AI', { chatId })
 			const userMessage: ChatCompletionMessageParam = buildEveningChatRequest(
 				usersWithoutCompletion,
 				habits,
@@ -130,7 +142,10 @@ export async function sendEveningReminder() {
 					chatMessage = maybeChatMessage
 				}
 			} catch (error) {
-				console.error('Failed to generate chat message', error)
+				console.error(
+					'Failed to generate chat message with 🪄 AI. Falling back to default',
+					error,
+				)
 			}
 		}
 
