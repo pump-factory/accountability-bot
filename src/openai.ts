@@ -79,6 +79,11 @@ export async function generateChatMessage(
 ) {
 	invariant(openai, 'OpenAI client not initialized')
 
+	console.log('[openai] Generating AI chat message', {
+		systemMessage,
+		messageParams,
+	})
+
 	const response = await openai.chat.completions.create({
 		messages: [systemMessage, ...messageParams],
 		model: 'gpt-3.5-turbo',
