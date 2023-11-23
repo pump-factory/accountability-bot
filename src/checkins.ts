@@ -155,7 +155,7 @@ export async function sendEveningReminder() {
 
 function buildDefaultEveningMessage(users: IFindUsersInChatResult[]) {
 	return users.length === 0
-		? `Congrats everyone!  You've all rocked your habits today🎉`
+		? `Congrats everyone! You've all rocked your habits today 🎉`
 		: `${users
 				.map((user) => user.name)
 				.join(
