@@ -17,7 +17,6 @@ import {
 	findUsersInChat,
 	IFindUserByTelegramIdResult,
 } from '../users/users.queries'
-import { CustomContext } from '../types'
 import { client } from '../db'
 import { bot } from '../bot'
 import { sendEveningReminder, sendMorningReminder } from '../checkins'
