@@ -42,12 +42,12 @@ WHERE "HabitEvent".id IS NULL
   AND "UserChat"."chatId" = :chatId!;
 
 /* @name findRecentHabitEvents */
-SELECT U.id as "userId", H.title, U.name, "HabitEvent"."createdAt", (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") as "recentCutoff"
+SELECT U.id as "userId", H.title, U.name, "HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone", DATE_TRUNC('day', current_date at time zone U."timezone") as "recentCutoff"
 FROM "HabitEvent"
          JOIN "HabitFollower" HF on "HabitEvent"."habitFollowerId" = HF.id
          JOIN "Habit" H on HF."habitId" = H.id
          JOIN "User" U on HF."userId" = U.id
-WHERE ("HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") >= (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U."timezone")
+WHERE ("HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") >= DATE_TRUNC('day', current_date at time zone U."timezone")
   AND H."id" = :habitId!;
 
 /* @name FindDistinctChatIds */

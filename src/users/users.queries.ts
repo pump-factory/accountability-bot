@@ -190,9 +190,9 @@ export interface IFindRecentHabitEventsParams {
 
 /** 'FindRecentHabitEvents' return type */
 export interface IFindRecentHabitEventsResult {
-  createdAt: Date;
   name: string;
   recentCutoff: Date | null;
+  timezone: Date | null;
   title: string;
   userId: string;
 }
@@ -203,17 +203,17 @@ export interface IFindRecentHabitEventsQuery {
   result: IFindRecentHabitEventsResult;
 }
 
-const findRecentHabitEventsIR: any = {"usedParamSet":{"habitId":true},"params":[{"name":"habitId","required":true,"transform":{"type":"scalar"},"locs":[{"a":487,"b":495}]}],"statement":"SELECT U.id as \"userId\", H.title, U.name, \"HabitEvent\".\"createdAt\", (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U.\"timezone\") as \"recentCutoff\"\nFROM \"HabitEvent\"\n         JOIN \"HabitFollower\" HF on \"HabitEvent\".\"habitFollowerId\" = HF.id\n         JOIN \"Habit\" H on HF.\"habitId\" = H.id\n         JOIN \"User\" U on HF.\"userId\" = U.id\nWHERE (\"HabitEvent\".\"createdAt\" AT TIME ZONE 'UTC' AT TIME ZONE U.\"timezone\") >= (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U.\"timezone\")\n  AND H.\"id\" = :habitId!"};
+const findRecentHabitEventsIR: any = {"usedParamSet":{"habitId":true},"params":[{"name":"habitId","required":true,"transform":{"type":"scalar"},"locs":[{"a":528,"b":536}]}],"statement":"SELECT U.id as \"userId\", H.title, U.name, \"HabitEvent\".\"createdAt\" AT TIME ZONE 'UTC' AT TIME ZONE U.\"timezone\", DATE_TRUNC('day', current_date at time zone U.\"timezone\") as \"recentCutoff\"\nFROM \"HabitEvent\"\n         JOIN \"HabitFollower\" HF on \"HabitEvent\".\"habitFollowerId\" = HF.id\n         JOIN \"Habit\" H on HF.\"habitId\" = H.id\n         JOIN \"User\" U on HF.\"userId\" = U.id\nWHERE (\"HabitEvent\".\"createdAt\" AT TIME ZONE 'UTC' AT TIME ZONE U.\"timezone\") >= DATE_TRUNC('day', current_date at time zone U.\"timezone\")\n  AND H.\"id\" = :habitId!"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT U.id as "userId", H.title, U.name, "HabitEvent"."createdAt", (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") as "recentCutoff"
+ * SELECT U.id as "userId", H.title, U.name, "HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone", DATE_TRUNC('day', current_date at time zone U."timezone") as "recentCutoff"
  * FROM "HabitEvent"
  *          JOIN "HabitFollower" HF on "HabitEvent"."habitFollowerId" = HF.id
  *          JOIN "Habit" H on HF."habitId" = H.id
  *          JOIN "User" U on HF."userId" = U.id
- * WHERE ("HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") >= (CURRENT_DATE AT TIME ZONE 'UTC' AT TIME ZONE U."timezone")
+ * WHERE ("HabitEvent"."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE U."timezone") >= DATE_TRUNC('day', current_date at time zone U."timezone")
  *   AND H."id" = :habitId!
  * ```
  */
