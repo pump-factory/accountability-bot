@@ -9,5 +9,5 @@
 	"srcDir": "./src/",
 	"failOnError": true,
 	"camelCaseColumnNames": false,
-	"dbUrl": "postgresql://postgres:postgres@localhost:54322/postgres"
+	"dbUrl": "postgresql://quinn@localhost:5432/accountability_bot"
 }

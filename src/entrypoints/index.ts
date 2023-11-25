@@ -9,14 +9,13 @@ import {
 	findHabitByTitle,
 	findHabitsByChatId,
 	logHabitCompletion,
-} from '../habits/habits.queries'
-import {
 	createHabitFollower,
 	createUser,
 	findUserByTelegramId,
 	findUsersInChat,
 	IFindUserByTelegramIdResult,
-} from '../users/users.queries'
+	findHabitFollower,
+} from '../habits/habits.queries'
 import { client } from '../db'
 import { bot } from '../bot'
 import { sendEveningReminder, sendMorningReminder } from '../checkins'
@@ -205,11 +204,12 @@ const start = async () => {
 		invariant(ctx.chat, 'ctx.chat is undefined')
 		invariant(ctx.from, 'ctx.from is undefined')
 
-		await ctx.editMessageReplyMarkup(undefined)
+		// await ctx.editMessageReplyMarkup(undefined)
 		if (!ctx.match[0]) {
-			ctx.reply('error logging habit completion. please try again')
+			ctx.reply("I'm sorry that doesn't make sense. Please try again")
 			return
 		}
+
 		const habitId = ctx.match[0]
 		const results = await findHabit.run(
 			{ habitId, chatId: ctx.chat.id },
@@ -224,6 +224,20 @@ const start = async () => {
 		const user = (ctx as any).user as IFindUserByTelegramIdResult
 
 		try {
+			invariant(user.telegramId, 'user.telegramId is undefined')
+
+			const follower = await findHabitFollower.run(
+				{ habitId, telegramId: user.telegramId },
+				client,
+			)
+
+			if (!follower[0]) {
+				await createHabitFollower.run(
+					{ habitId, telegramId: user.telegramId },
+					client,
+				)
+			}
+
 			await logHabitCompletion.run(
 				{
 					telegramId: user.telegramId,
@@ -232,6 +246,7 @@ const start = async () => {
 				client,
 			)
 		} catch (err) {
+			console.error(err)
 			ctx.reply('error logging habit completion. please try again')
 			return
 		}

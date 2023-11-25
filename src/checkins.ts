@@ -1,15 +1,12 @@
 import {
 	findHabitsByChatId,
 	findHabitsGroupedByChatId,
+	findRecentHabitEvents,
+	findUsersInChat,
+	IFindUsersInChatResult,
 } from './habits/habits.queries'
 import { client } from './db'
 import { bot } from './bot'
-import {
-	findRecentHabitEvents,
-	findUsersInChat,
-	findUsersWithoutHabitCompletions,
-	IFindUsersInChatResult,
-} from './users/users.queries'
 import {
 	buildEveningChatRequest,
 	buildMorningChatRequest,
