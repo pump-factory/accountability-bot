@@ -3,7 +3,7 @@ import { ChatCompletionMessageParam } from 'openai/resources'
 import {
 	IFindUsersInChatResult,
 	IFindUsersWithoutHabitCompletionsResult,
-} from './users/users.queries'
+} from './habits/habits.queries'
 import { IFindHabitsByChatIdResult } from './habits/habits.queries'
 import { invariant } from './invariant'
 

@@ -1,21 +1,19 @@
 import {
 	findHabitsByChatId,
 	findHabitsGroupedByChatId,
+	findRecentHabitEvents,
+	findUsersInChat,
+	IFindUsersInChatResult,
 } from './habits/habits.queries'
 import { client } from './db'
 import { bot } from './bot'
-import {
-	findRecentHabitEvents,
-	findUsersInChat,
-	findUsersWithoutHabitCompletions,
-	IFindUsersInChatResult,
-} from './users/users.queries'
 import {
 	buildEveningChatRequest,
 	buildMorningChatRequest,
 	generateChatMessage,
 } from './openai'
 import { ChatCompletionMessageParam } from 'openai/resources'
+import { Markup } from 'telegraf'
 
 const defaultMorningMessage = `Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters`
 
@@ -61,7 +59,15 @@ export async function sendMorningReminder() {
 			}
 		}
 
-		await bot.telegram.sendMessage(chatId, chatMessage)
+		await bot.telegram.sendMessage(
+			chatId,
+			chatMessage,
+			Markup.inlineKeyboard(
+				habits.map((habit) =>
+					Markup.button.callback(habit.title, habit.id.toString()),
+				),
+			),
+		)
 	}
 }
 
