@@ -1,0 +1,65 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Run server",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/dist/src/entrypoints/index.js",
+			"preLaunchTask": "tsc: build - tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/.env",
+			"presentation": {
+				"hidden": false,
+				"reveal": "silent",
+				"close": true,
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Morning cron",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/dist/src/entrypoints/morningMotivation.cron.js",
+			"preLaunchTask": "tsc: build - tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/.env",
+			"presentation": {
+				"hidden": false,
+				"reveal": "silent",
+				"close": true,
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Evening cron",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/dist/src/entrypoints/eveningCheckin.cron.js",
+			"preLaunchTask": "tsc: build - tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/.env",
+			"presentation": {
+				"hidden": false,
+				"reveal": "silent",
+				"close": true,
+			}
+		},
+	]
+}
