@@ -16,6 +16,7 @@ import {
 	generateChatMessage,
 } from './openai'
 import { ChatCompletionMessageParam } from 'openai/resources'
+import { Markup } from 'telegraf'
 
 const defaultMorningMessage = `Good morning, accountability champions! 🌞 Today is a brand new opportunity to find your inner peace and clarity through meditation. Take a deep breath, commit to your practice, and let's make today another successful day on our journey to mindfulness and well-being. 🧘‍♀️🧘‍♂️ #MeditationMasters`
 
@@ -61,7 +62,15 @@ export async function sendMorningReminder() {
 			}
 		}
 
-		await bot.telegram.sendMessage(chatId, chatMessage)
+		await bot.telegram.sendMessage(
+			chatId,
+			chatMessage,
+			Markup.inlineKeyboard(
+				habits.map((habit) =>
+					Markup.button.callback(habit.title, habit.id.toString()),
+				),
+			),
+		)
 	}
 }
 

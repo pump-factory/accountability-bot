@@ -198,12 +198,8 @@ const start = async () => {
 		)
 	})
 
-	bot.command('morning', async (ctx) => {
-		await sendMorningReminder()
-	})
-	bot.command('evening', async (ctx) => {
-		await sendEveningReminder()
-	})
+	bot.command('morning', sendMorningReminder)
+	bot.command('evening', sendEveningReminder)
 
 	bot.action(/.+/, async (ctx) => {
 		invariant(ctx.chat, 'ctx.chat is undefined')
